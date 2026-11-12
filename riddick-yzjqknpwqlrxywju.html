@@ -1,0 +1,1200 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riddick Insurance Dashboard</title>
+<style>
+:root { --bg:#f7f6f2; --panel:#ffffff; --fg:#1f1e1b; --muted:#6b675e; --line:#e3e0d7; --accent:#8a6d12; --ok:#2f7d4f; --warn:#a2541b; --bad:#b3261e; --r:10px;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; --serif: Georgia, "Times New Roman", serif; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1b1a17; --panel:#24231f; --fg:#ecebe6; --muted:#a6a298; --line:#3a3832; --accent:#c9a23a; --ok:#5fbf86; --warn:#e0955a; --bad:#f07a70; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg:#1b1a17; --panel:#24231f; --fg:#ecebe6; --muted:#a6a298; --line:#3a3832; --accent:#c9a23a; --ok:#5fbf86; --warn:#e0955a; --bad:#f07a70; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; }
+.rd { max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; display: flex; flex-direction: column; gap: 32px; }
+.rd-head { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+.rd-logo { background: #fff; border: 1px solid var(--line); border-radius: var(--r); padding: 8px 14px; }
+.rd-logo img { display: block; width: 150px; max-width: 100%; height: auto; }
+.rd-headtext { flex: 1 1 260px; min-width: 0; }
+.rd-title { font-family: var(--serif); font-weight: 400; font-size: 30px; margin: 0; line-height: 1.15; }
+.rd-subt { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.rd-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.rd-nav a { font-size: 13px; color: var(--fg); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; background: var(--panel); }
+.rd-nav a:hover { border-color: var(--muted); }
+.rd-sec { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 12px; }
+.rd-sec-head { border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+.rd-sec-head h2 { margin: 0; font-size: 19px; font-weight: 600; }
+.rd-sec-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.rd-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.rd-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.rd-card h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.rd-role { margin: 0; color: var(--muted); font-size: 13px; }
+.rd-cardtop { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.rd-badge { font-size: 11px; border-radius: 999px; padding: 2px 8px; white-space: nowrap; border: 1px solid var(--line); color: var(--muted); }
+.rd-badge.on { color: var(--ok); border-color: currentColor; }
+.rd-meets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rd-meet { border-radius: 8px; background: var(--bg); padding: 8px 10px; min-width: 0; }
+.lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.when { font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.what { font-size: 13px; color: var(--muted); }
+.none { font-size: 13px; color: var(--warn); margin-top: 2px; }
+.rd-work, .rd-goal { margin: 0; font-size: 13px; line-height: 1.55; }
+.rd-work strong { font-weight: 600; }
+.rd-goal { border-left: 3px solid var(--accent); padding-left: 8px; }
+.rd-goal.pending { border-left-color: var(--line); color: var(--muted); font-style: italic; }
+.rd-foot { font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.rd-bullets { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.5; display: flex; flex-direction: column; gap: 4px; }
+.rd-empty { color: var(--muted); font-size: 13px; padding: 14px; border: 1px dashed var(--line); border-radius: var(--r); }
+.rd-tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); }
+.rd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rd-table th { text-align: left; font-weight: 600; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.rd-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.rd-table tr:last-child td { border-bottom: 0; }
+.nowrap { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.overdue { color: var(--bad); }
+tr.isdone td.tx > div:first-child { text-decoration: line-through; color: var(--muted); }
+.rd-stage { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.rd-stage.now { background: var(--accent); color: #fff; border-color: var(--accent); }
+.rd-stage.done { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--fg); }
+.rd-origin { font-size: 11px; color: var(--muted); }
+.mark { font-size: 15px; color: var(--muted); }
+.mark.done { color: var(--ok); }
+.rd-lib { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 10px; }
+.rd-lib li { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rd-lib a { color: var(--fg); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.rd-lib a:hover { text-decoration: underline; }
+.meta { font-size: 11px; color: var(--muted); }
+.rd-updated { font-size: 12px; color: var(--muted); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 640px) { .hide-narrow { display: none; } .rd-title { font-size: 25px; } }
+@media (max-width: 420px) { .rd-meets { grid-template-columns: 1fr; } }
+</style></head><body>
+
+<div class="rd">
+  <header class="rd-head">
+    <div class="rd-logo"><img src="data:image/webp;base64,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" alt="Riddick Insurance Group"></div>
+    <div class="rd-headtext">
+      <h1 class="rd-title">Riddick Insurance Group</h1>
+      <p class="rd-subt">Client dashboard · Impact Performance Team · <span id="updated"></span></p>
+    </div>
+  </header>
+  <nav class="rd-nav" aria-label="Sections">
+    <a href="#sales">Sales</a><a href="#sales-call">Sales Call</a><a href="#leadership">Leadership</a><a href="#team">Service &amp; Ops</a><a href="#recruiting">Recruiting</a><a href="#library">Client Library</a><a href="#tasks">Open tasks</a>
+  </nav>
+  <section class="rd-sec" id="sales"><div class="rd-sec-head"><h2>Sales</h2><p>Producers with an IPT meeting in the last 2 months</p></div><div class="rd-cards" id="producers"></div></section>
+  <section class="rd-sec" id="sales-call"><div class="rd-sec-head"><h2>Sales Call</h2><p>Weekly team sales meeting with Patrick and the producers</p></div><div class="rd-cards" id="g-sales"></div></section>
+  <section class="rd-sec" id="leadership"><div class="rd-sec-head"><h2>Leadership</h2><p>Check-ins and recruiting updates with Mike</p></div><div class="rd-cards" id="g-mike"></div></section>
+  <section class="rd-sec" id="team"><div class="rd-sec-head"><h2>Service &amp; Ops</h2><p>Service and operations team members Savannah meets with</p></div><div class="rd-cards" id="team-cards"></div></section>
+  <section class="rd-sec" id="recruiting"><div class="rd-sec-head"><h2>Recruiting</h2><p>Roles IPT is recruiting for</p></div>
+    <div class="rd-tablewrap"><table class="rd-table"><thead><tr><th>Role</th><th>Stage</th><th>Hire</th><th>Notes</th><th class="hide-narrow">As of</th></tr></thead><tbody id="roles"></tbody></table></div></section>
+  <section class="rd-sec" id="library"><div class="rd-sec-head"><h2>Client Library</h2><p>Documents and spreadsheets the team may find useful</p></div><ul class="rd-lib" id="lib"></ul></section>
+  <section class="rd-sec" id="tasks"><div class="rd-sec-head"><h2>Open tasks</h2><p>Mike Riddick</p></div>
+    <div class="rd-tablewrap"><table class="rd-table"><thead><tr><th><span class="sr">Status</span></th><th>Task</th><th>Due</th><th class="hide-narrow">From</th></tr></thead><tbody id="task-rows"></tbody></table></div></section>
+</div>
+
+<script type="application/json" id="rd-data">{
+"as_of": "2026-11-12",
+"meetings": [
+{
+"date": "2026-01-05",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-01-05",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-01-06",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-01-06",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-01-08",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-01-08",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-01-12",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-01-12",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-01-13",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-01-13",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-01-15",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-01-19",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-01-19",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-01-20",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-01-20",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-01-22",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-01-26",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-01-26",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-01-27",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-01-27",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-01-29",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-02-05",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-02-06",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-02-06",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-02-10",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-02-10",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-02-13",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-02-16",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-02-16",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-02-17",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-02-19",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-02-20",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-02-23",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-02-23",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-02-24",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-02-24",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-02-26",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-03-02",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-03-02",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-03-03",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-03-03",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-03-05",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-03-05",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-03-09",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-03-09",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-03-11",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-03-11",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-03-16",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-03-16",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-03-17",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-03-17",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-03-19",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-03-23",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-03-23",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-03-24",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-03-24",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-03-30",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-03-30",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-03-31",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-04-06",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-04-07",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-04-07",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-04-07",
+"type": "Candidate Interview",
+"who": "Recruiting",
+"status": "Held"
+},
+{
+"date": "2026-04-09",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-04-13",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-04-13",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-04-14",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-04-15",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-04-16",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-04-21",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-04-21",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-04-22",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-04-27",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-04-27",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-04-28",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-04-28",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-04-30",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-05-04",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-05-04",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-05-05",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-05-07",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-05-07",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-05-11",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-05-11",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-05-12",
+"type": "Candidate Interview",
+"who": "Recruiting",
+"status": "Held"
+},
+{
+"date": "2026-05-14",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-05-18",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-05-18",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-05-21",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-05-26",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-05-26",
+"type": "Candidate Interview",
+"who": "Recruiting",
+"status": "Held"
+},
+{
+"date": "2026-05-27",
+"type": "Candidate Interview",
+"who": "Recruiting",
+"status": "Held"
+},
+{
+"date": "2026-06-01",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-06-01",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-06-05",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-06-08",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-06-08",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-06-09",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-06-15",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-06-15",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-06-18",
+"type": "1:1 Coaching",
+"who": "Derek",
+"status": "Held"
+},
+{
+"date": "2026-06-29",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-06-30",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-07-06",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-07-06",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-07-13",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-07-13",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-07-16",
+"type": "1:1 Coaching",
+"who": "Charlotte",
+"status": "Held"
+},
+{
+"date": "2026-07-27",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-07-27",
+"type": "Team Sales Meeting",
+"who": "Sales team",
+"status": "Held"
+},
+{
+"date": "2026-08-03",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-08-06",
+"type": "Candidate Interview",
+"who": "Recruiting",
+"status": "Held"
+},
+{
+"date": "2026-08-10",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-08-11",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-08-17",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-08-24",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-08-24",
+"type": "Recruiting Update",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-08-25",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-08-31",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-09-10",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-09-14",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-09-21",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-10-02",
+"type": "1:1 Coaching",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-10-12",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-10-20",
+"type": "Onboarding",
+"who": "Kevin",
+"status": "Held"
+},
+{
+"date": "2026-10-26",
+"type": "Recruiting Update",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-10-27",
+"type": "Sales Review",
+"who": "Taylor",
+"status": "Held"
+},
+{
+"date": "2026-11-02",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-11-03",
+"type": "1:1 Coaching",
+"who": "Kevin",
+"status": "Held"
+},
+{
+"date": "2026-11-09",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-11-09",
+"type": "Planning Call",
+"who": "Kevin",
+"status": "Held"
+},
+{
+"date": "2026-11-09",
+"type": "Recruiting Update",
+"who": "Mike",
+"status": "Held"
+},
+{
+"date": "2026-11-12",
+"type": "Planning Call",
+"who": "Taylor",
+"status": "Scheduled"
+},
+{
+"date": "2026-11-16",
+"type": "Planning Call",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-11-17",
+"type": "1:1 Coaching",
+"who": "Kevin",
+"status": "Scheduled"
+},
+{
+"date": "2026-11-23",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-11-23",
+"type": "Recruiting Update",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-11-24",
+"type": "1:1 Coaching",
+"who": "Kevin",
+"status": "Scheduled"
+},
+{
+"date": "2026-11-30",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-01",
+"type": "1:1 Coaching",
+"who": "Kevin",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-07",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-07",
+"type": "Recruiting Update",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-08",
+"type": "1:1 Coaching",
+"who": "Kevin",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-14",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-15",
+"type": "1:1 Coaching",
+"who": "Kevin",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-21",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-21",
+"type": "Recruiting Update",
+"who": "Mike",
+"status": "Scheduled"
+},
+{
+"date": "2026-12-28",
+"type": "Leadership Check-in",
+"who": "Mike",
+"status": "Scheduled"
+}
+],
+"card_notes": [
+{
+"key": "Sales team",
+"notes": "Move to IMS Connect in about 60 days; build a playbook to move high-value SageSure renewals (up 20–35%) to AAA or Travelers; update client data on every file touch; call clients about complex issues instead of emailing.",
+"meeting": "Weekly team sales meeting",
+"as_of": "2026-07-27"
+},
+{
+"key": "Mike",
+"notes": "Account manager candidate cleared for an offer, which Mike plans to send this week. The account manager role stays open afterward for a future succession hire. The commercial producer posting is reactivated, and high net worth sourcing continues.",
+"meeting": "Recruiting update with Jenni and Emily",
+"as_of": "2026-11-09"
+}
+],
+"producers": [
+{
+"name": "Kevin",
+"role": "Commercial Producer",
+"order": 2,
+"status": "Planning call held",
+"reviewNote": "New hire (Oct 7)",
+"planning": "2026-11-09",
+"focus": "Daily call blocks (8:30–10:30 AM, 2–4 PM): 100 touches and 25 new prospects a week, 8 appointments a month; shift networking to industry associations and referral partners",
+"goal": "$60K in new revenue (agency target $50K, plus $25K Erie and 2 life referrals)"
+},
+{
+"name": "Taylor",
+"role": "Personal Lines Producer",
+"order": 1,
+"status": "Plan in progress",
+"review": "2026-10-27",
+"planning": "2026-11-12",
+"focus": "Build COI partnerships with mortgage lenders, financial planners and high-value-home realtors; quote faster; grow self-generated business"
+}
+],
+"roles": [
+{
+"role": "Commercial Lines Producer",
+"order": 1,
+"status": "Filled",
+"hire": "Kevin",
+"start": "2026-10-07",
+"latest": "Kevin started Oct 7; 2027 plan set Nov 9. Posting reactivated Nov 9 to keep sourcing for a future hire.",
+"updated": "2026-11-09"
+},
+{
+"role": "High Net Worth Personal Lines Producer",
+"order": 3,
+"status": "Sourcing",
+"latest": "No strong candidates yet; recent applicants passed on for fit. Sourcing continues. Listing: $50–60K base, $80–95K estimated first-year total; P&C license preferred.",
+"updated": "2026-11-09"
+},
+{
+"role": "Personal Lines Account Manager",
+"order": 2,
+"status": "Offer out",
+"latest": "Mike cleared a candidate for an offer on Nov 9 and is sending it this week. The role stays open afterward for a future succession hire; only top candidates will be submitted.",
+"updated": "2026-11-09"
+}
+],
+"library": [
+{
+"title": "Riddick Insurance Leadership Call Agenda",
+"mimeType": "application/vnd.google-apps.document",
+"modifiedTime": "2026-11-11T15:20:10.365Z",
+"viewUrl": "https://docs.google.com/document/d/1SyF9eQK63r0b759DaDuEX-DEn1Xi_8DJpdCcSZ4lEFU/edit?usp=drivesdk"
+},
+{
+"title": "2027 Goal Plans",
+"mimeType": "application/vnd.google-apps.folder",
+"modifiedTime": "2026-11-12T13:54:50.103Z",
+"viewUrl": "https://drive.google.com/drive/folders/1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8"
+},
+{
+"title": "2026 Sales Reviews",
+"mimeType": "application/vnd.google-apps.folder",
+"modifiedTime": "2026-11-12T13:54:49.068Z",
+"viewUrl": "https://drive.google.com/drive/folders/1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq"
+}
+],
+"tasks": [
+{
+"n": 10,
+"task": "Set up the AgencyZoom Outlook connection so Kevin's emails send from his address",
+"status": "Open",
+"source": "Kevin Kick-off Call (Oct 20)"
+},
+{
+"n": 11,
+"task": "Decide on ERIE ovERdrIvE vs. direct carrier underwriter introductions for Kevin",
+"status": "Confirm",
+"source": "Mike & Patrick Check-in (Nov 2)"
+},
+{
+"n": 15,
+"task": "Interview the account manager candidate sent Oct 28",
+"status": "Confirm",
+"source": "Recruiting Update (Oct 26)",
+"done": true,
+"doneAt": "2026-11-09T15:00:00Z"
+},
+{
+"n": 20,
+"task": "Finalize details and send the account manager offer; keep IPT updated on the candidate's answer",
+"due": "2026-11-10",
+"status": "Open",
+"source": "Recruiting Update (Nov 9)"
+},
+{
+"n": 9,
+"task": "Connect Kevin with the ERIE rep once his login is active",
+"status": "Open",
+"source": "Kevin Kick-off Call (Oct 20)"
+}
+]
+}</script>
+<script>
+(() => {
+const D = JSON.parse(document.getElementById('rd-data').textContent);
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const dt = (s) => new Date(String(s).slice(0, 10) + 'T00:00:00Z');
+const fmtDay = (s) => { if (!s) return ''; const d = dt(s); return MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); };
+const fmtLong = (s) => { if (!s) return ''; const d = dt(s); return DOW[d.getUTCDay()] + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); };
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+const safeLink = (u) => { try { const x = new URL(String(u)); return x.protocol === 'https:' ? x.href : null; } catch (_) { return null; } };
+const today = new Date().toISOString().slice(0, 10);
+const daysAgo = (n) => { const c = new Date(); c.setUTCHours(0, 0, 0, 0); c.setUTCDate(c.getUTCDate() - n); return c; };
+
+document.getElementById('updated').textContent = 'Updated ' + fmtLong(D.as_of);
+
+/* last and next meeting per person or group */
+const touch = new Map();
+for (const m of D.meetings || []) for (const who of String(m.who).split(' & ').map((s) => s.trim()).filter(Boolean)) {
+  if (!touch.has(who)) touch.set(who, { key: who, last_date: '', last_type: '', next_date: '', next_type: '' });
+  const r = touch.get(who);
+  if (m.status === 'Held') { if (m.date > r.last_date) { r.last_date = m.date; r.last_type = m.type; } }
+  else if (m.status === 'Scheduled' && m.date >= today && (!r.next_date || m.date < r.next_date)) { r.next_date = m.date; r.next_type = m.type; }
+}
+const isRecent = (k) => { const r = touch.get(k); return !!(r && r.last_date) && dt(r.last_date) >= daysAgo(61); };
+const TL = { 'Leadership Check-in': 'Leadership check-in', 'Team Sales Meeting': 'Team sales meeting', '1:1 Coaching': '1:1 coaching', 'Sales Review': '2026 sales review', 'Planning Call': '2027 planning call', 'Onboarding': 'Onboarding', 'Recruiting Update': 'Recruiting update', 'Candidate Interview': 'Candidate interview' };
+function meetBoxes(key) {
+  const row = touch.get(key); const w = el('div', 'rd-meets');
+  for (const [k, label] of [['last', 'Last IPT meeting'], ['next', 'Next IPT meeting']]) {
+    const m = el('div', 'rd-meet'); m.append(el('div', 'lbl', label));
+    if (row && row[k + '_date']) m.append(el('div', 'when', fmtLong(row[k + '_date'])), el('div', 'what', TL[row[k + '_type']] || row[k + '_type']));
+    else m.append(el('div', 'none', k === 'next' ? 'None scheduled' : 'None found'));
+    w.append(m);
+  }
+  return w;
+}
+function notesBlock(key) {
+  const r = (D.card_notes || []).find((x) => x.key === key);
+  if (!r || !r.notes) return [];
+  const ul = el('ul', 'rd-bullets');
+  String(r.notes).split(/\n|(?<=[.!?])\s+(?=[A-Z0-9$(“"])/).map((s) => s.replace(/^[•\-\s]+/, '').trim()).filter(Boolean).forEach((s) => ul.append(el('li', null, s)));
+  const foot = el('div', 'rd-foot'); foot.append(el('span', null, 'From ' + (r.meeting || '') + (r.as_of ? ', ' + fmtLong(r.as_of) : '')));
+  return [ul, foot];
+}
+const card = (name, role) => { const c = el('article', 'rd-card'); const top = el('div', 'rd-cardtop'); const h = el('div'); h.append(el('h3', null, name)); if (role) h.append(el('p', 'rd-role', role)); top.append(h); c.append(top); return [c, top]; };
+
+/* Sales */
+const prods = (D.producers || []).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+const pc = prods.filter((p) => isRecent(p.name)).map((p) => {
+  const [c, top] = card(p.name, p.role || 'Producer');
+  top.append(el('span', 'rd-badge' + (p.status === 'Planning call held' ? ' on' : ''), p.status || ''));
+  c.append(meetBoxes(p.name));
+  const steps = el('div', 'rd-foot'); steps.append(el('span', null, '2026 review: ' + (p.review ? fmtDay(p.review) : (p.reviewNote || '—'))), el('span', null, '2027 planning: ' + (p.planning ? fmtDay(p.planning) : '—'))); c.append(steps);
+  if (p.focus) { const w = el('p', 'rd-work'); w.append(el('strong', null, 'Focus: '), document.createTextNode(p.focus)); c.append(w); }
+  const pend = p.planning ? (p.status === 'Planning call held' ? 'Goal to be added from ' + fmtDay(p.planning) + ' planning call' : '2027 goal set at ' + fmtDay(p.planning) + ' planning call') : '2027 planning call to be scheduled';
+  c.append(p.goal ? el('p', 'rd-goal', '2027 goal: ' + p.goal) : el('p', 'rd-goal pending', pend));
+  return c;
+});
+document.getElementById('producers').replaceChildren(...(pc.length ? pc : [el('div', 'rd-empty', 'No producer meetings in the last 2 months.')]));
+
+/* Sales Call, Leadership */
+for (const [id, key, name, role] of [['g-sales', 'Sales team', 'Sales team', 'Weekly team sales meeting'], ['g-mike', 'Mike', 'Mike Riddick', 'President · weekly check-in with Patrick']]) {
+  const [c] = card(name, role); c.append(meetBoxes(key), ...notesBlock(key)); document.getElementById(id).replaceChildren(c);
+}
+
+/* Service & Ops */
+const skip = new Set(['Sales team', 'Mike', 'Recruiting', ...prods.map((p) => p.name)]);
+const team = [...touch.values()].filter((r) => !skip.has(r.key) && isRecent(r.key)).sort((a, b) => b.last_date.localeCompare(a.last_date) || a.key.localeCompare(b.key));
+document.getElementById('team-cards').replaceChildren(...(team.length ? team.map((r) => { const [c] = card(r.key); c.append(meetBoxes(r.key), ...notesBlock(r.key)); return c; }) : [el('div', 'rd-empty', 'No meetings with service or operations team members in the last 2 months.')]));
+
+/* Recruiting */
+const rb = document.getElementById('roles'); const roles = (D.roles || []).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+const STAGE = { Filled: ['Role filled', 'done'], 'On hold': ['Paused', ''] };
+if (!roles.length) { const tr = el('tr'); const td = el('td', 'rd-origin', 'No open roles right now.'); td.colSpan = 5; tr.append(td); rb.append(tr); }
+for (const r of roles) {
+  const tr = el('tr'); const [label, cls] = STAGE[r.status] || [r.status || '—', 'now'];
+  const st = el('td'); st.append(el('span', 'rd-stage' + (cls ? ' ' + cls : ''), label));
+  const hire = el('td', 'nowrap', r.hire || '—'); if (r.hire && r.start) hire.append(el('div', 'rd-origin', 'Started ' + fmtDay(r.start)));
+  tr.append(el('td', null, r.role), st, hire, el('td', null, r.latest || ''), el('td', 'nowrap hide-narrow', fmtDay(r.updated))); rb.append(tr);
+}
+
+/* Client Library */
+const KIND = (m) => /folder/.test(m) ? 'Folder' : /document/.test(m) ? 'Doc' : /spreadsheet|excel|sheet/.test(m) ? 'Sheet' : /presentation|powerpoint/.test(m) ? 'Slides' : /pdf/.test(m) ? 'PDF' : /image/.test(m) ? 'Image' : 'File';
+const lib = (D.library || []).map((f) => { const li = el('li'); const href = safeLink(f.viewUrl); const a = el(href ? 'a' : 'span', null, f.title || 'Untitled'); if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener'; } li.append(a, el('span', 'meta', KIND(f.mimeType || '') + (f.modifiedTime ? ' · updated ' + fmtDay(f.modifiedTime) : ''))); return li; });
+document.getElementById('lib').replaceChildren(...(lib.length ? lib : [el('li', 'meta', 'Resources will be added here soon.')]));
+
+/* Open tasks: done tasks stay visible for a week after they were completed */
+const tb = document.getElementById('task-rows'); const order = { Open: 0, Ongoing: 1, Confirm: 2 }; const cut = daysAgo(7);
+const tasks = (D.tasks || []).filter((t) => !(t.done && (!(t.doneAt || t.due) || dt(t.doneAt || t.due) < cut)))
+  .sort((a, b) => (!!a.done - !!b.done) || (order[a.status] ?? 9) - (order[b.status] ?? 9) || String(a.due || '9999').localeCompare(String(b.due || '9999')) || (a.n || 0) - (b.n || 0));
+if (!tasks.length) { const tr = el('tr'); const td = el('td', 'rd-origin', 'No open tasks.'); td.colSpan = 4; tr.append(td); tb.append(tr); }
+for (const t of tasks) {
+  const tr = el('tr'); if (t.done) tr.className = 'isdone';
+  const mk = el('td'); mk.append(el('span', 'mark' + (t.done ? ' done' : ''), t.done ? '✓' : '○')); mk.title = t.done ? 'Done' : 'Open';
+  const tx = el('td', 'tx'); tx.append(el('div', null, t.task));
+  if (t.done) tx.append(el('div', 'rd-origin', 'Done' + (t.doneAt ? ' ' + fmtDay(t.doneAt) : '')));
+  else if (t.status === 'Confirm') tx.append(el('div', 'rd-origin', 'To confirm'));
+  else if (t.status === 'Ongoing') tx.append(el('div', 'rd-origin', 'Ongoing'));
+  tr.append(mk, tx, el('td', 'nowrap' + (!t.done && t.due && t.due < today ? ' overdue' : ''), t.due ? fmtDay(t.due) : '—'), el('td', 'rd-origin hide-narrow', t.source || ''));
+  tb.append(tr);
+}
+})();
+</script>
+</body></html>
