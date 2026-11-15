@@ -59,6 +59,8 @@ tr.isdone td.tx > div:first-child { text-decoration: line-through; color: var(--
 .rd-lib li { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .rd-lib a { color: var(--fg); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
 .rd-lib a:hover { text-decoration: underline; }
+.rd-lib li.rd-libgroup { grid-column: 1 / -1; background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 8px 0 4px; margin-top: 6px; }
+.rd-lib li.rd-libgroup a { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted, inherit); font-weight: 600; }
 .meta { font-size: 11px; color: var(--muted); }
 .rd-updated { font-size: 12px; color: var(--muted); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -1058,6 +1060,22 @@ tr.isdone td.tx > div:first-child { text-decoration: line-through; color: var(--
 "mimeType": "application/vnd.google-apps.folder",
 "modifiedTime": "2026-11-12T13:54:49.068Z",
 "viewUrl": "https://drive.google.com/drive/folders/1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq"
+},
+{
+"title": "Taylor 2026 Sales Review",
+"mimeType": "application/pdf",
+"modifiedTime": "2026-11-12T16:08:28.876Z",
+"viewUrl": "https://drive.google.com/file/d/1g08jMP8bnGbkGxf0i1opFSk555V8IZJc/view?usp=drivesdk",
+"folder": "2026 Sales Reviews",
+"folderUrl": "https://drive.google.com/drive/folders/1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq"
+},
+{
+"title": "Kevin Midyette 2027 Goal & Plan",
+"mimeType": "application/pdf",
+"modifiedTime": "2026-11-12T16:04:34.168Z",
+"viewUrl": "https://drive.google.com/file/d/1C55I_owdbPZD4belyNpOxqMpRuMxNc_r/view?usp=drivesdk",
+"folder": "2027 Goal Plans",
+"folderUrl": "https://drive.google.com/drive/folders/1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8"
 }
 ],
 "tasks": [
@@ -1177,7 +1195,13 @@ for (const r of roles) {
 
 /* Client Library */
 const KIND = (m) => /folder/.test(m) ? 'Folder' : /document/.test(m) ? 'Doc' : /spreadsheet|excel|sheet/.test(m) ? 'Sheet' : /presentation|powerpoint/.test(m) ? 'Slides' : /pdf/.test(m) ? 'PDF' : /image/.test(m) ? 'Image' : 'File';
-const lib = (D.library || []).map((f) => { const li = el('li'); const href = safeLink(f.viewUrl); const a = el(href ? 'a' : 'span', null, f.title || 'Untitled'); if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener'; } li.append(a, el('span', 'meta', KIND(f.mimeType || '') + (f.modifiedTime ? ' · updated ' + fmtDay(f.modifiedTime) : ''))); return li; });
+const libCard = (f) => { const li = el('li'); const href = safeLink(f.viewUrl); const a = el(href ? 'a' : 'span', null, f.title || 'Untitled'); if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener'; } li.append(a, el('span', 'meta', KIND(f.mimeType || '') + (f.modifiedTime ? ' · updated ' + fmtDay(f.modifiedTime) : ''))); return li; };
+const libAll = D.library || [];
+const libGroupNames = new Set(libAll.filter((f) => f.folder).map((f) => f.folder));
+const lib = libAll.filter((f) => !f.folder && !(/folder/.test(f.mimeType || '') && libGroupNames.has(f.title))).map(libCard);
+const libGroups = [];
+libAll.filter((f) => f.folder).forEach((f) => { let g = libGroups.find((x) => x.name === f.folder); if (!g) { g = { name: f.folder, url: f.folderUrl, files: [] }; libGroups.push(g); } g.files.push(f); });
+libGroups.sort((x, y) => x.name.localeCompare(y.name)).forEach((g) => { const h = el('li', 'rd-libgroup'); const href = safeLink(g.url); const ha = el(href ? 'a' : 'span', null, g.name + ' (folder)'); if (href) { ha.href = href; ha.target = '_blank'; ha.rel = 'noopener'; } h.append(ha); lib.push(h); g.files.sort((x, y) => (x.title || '').localeCompare(y.title || '')).forEach((f) => lib.push(libCard(f))); });
 document.getElementById('lib').replaceChildren(...(lib.length ? lib : [el('li', 'meta', 'Resources will be added here soon.')]));
 
 /* Open tasks: done tasks stay visible for a week after they were completed */
