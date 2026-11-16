@@ -1,1233 +1,626 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Riddick Insurance Dashboard</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riddick Insurance Group Dashboard</title>
 <style>
-:root { --bg:#f7f6f2; --panel:#ffffff; --fg:#1f1e1b; --muted:#6b675e; --line:#e3e0d7; --accent:#8a6d12; --ok:#2f7d4f; --warn:#a2541b; --bad:#b3261e; --r:10px;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; --serif: Georgia, "Times New Roman", serif; color-scheme: light; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1b1a17; --panel:#24231f; --fg:#ecebe6; --muted:#a6a298; --line:#3a3832; --accent:#c9a23a; --ok:#5fbf86; --warn:#e0955a; --bad:#f07a70; color-scheme: dark; } }
-:root[data-theme="dark"] { --bg:#1b1a17; --panel:#24231f; --fg:#ecebe6; --muted:#a6a298; --line:#3a3832; --accent:#c9a23a; --ok:#5fbf86; --warn:#e0955a; --bad:#f07a70; color-scheme: dark; }
+:root { --font-anthropic-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; --font-anthropic-serif: Georgia, "Times New Roman", serif;
+  --color-bg:#f7f6f2; --color-panel:#ffffff; --color-fg:#1f1e1b; --color-fg-muted:#6b675e; --color-border-line:#e3e0d7;
+  --color-ok:#2f7d4f; --color-warn:#a2541b; --color-bad:#b3261e;
+  --cds-gap-xs:6px; --cds-gap-sm:10px; --cds-gap-md:14px; --cds-gap-lg:20px; --cds-gap-xl:32px;
+  --cds-pad-sm:8px; --cds-pad-md:12px; --cds-pad-lg:18px; --cds-radius:10px;
+  --cds-font-size-title:30px; --cds-font-size-heading:19px; --cds-font-size-body:15px; --cds-font-size-caption:13px; --cds-font-weight-medium:600;
+  color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --color-bg:#1b1a17; --color-panel:#24231f; --color-fg:#ecebe6; --color-fg-muted:#a6a298; --color-border-line:#3a3832; --color-ok:#5fbf86; --color-warn:#e0955a; --color-bad:#f07a70; color-scheme: dark; } }
+:root[data-theme="dark"] { --color-bg:#1b1a17; --color-panel:#24231f; --color-fg:#ecebe6; --color-fg-muted:#a6a298; --color-border-line:#3a3832; --color-ok:#5fbf86; --color-warn:#e0955a; --color-bad:#f07a70; color-scheme: dark; }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; }
-.rd { max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; display: flex; flex-direction: column; gap: 32px; }
-.rd-head { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
-.rd-logo { background: #fff; border: 1px solid var(--line); border-radius: var(--r); padding: 8px 14px; }
-.rd-logo img { display: block; width: 150px; max-width: 100%; height: auto; }
-.rd-headtext { flex: 1 1 260px; min-width: 0; }
-.rd-title { font-family: var(--serif); font-weight: 400; font-size: 30px; margin: 0; line-height: 1.15; }
-.rd-subt { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-.rd-nav { display: flex; flex-wrap: wrap; gap: 6px; }
-.rd-nav a { font-size: 13px; color: var(--fg); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; background: var(--panel); }
-.rd-nav a:hover { border-color: var(--muted); }
-.rd-sec { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 12px; }
-.rd-sec-head { border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
-.rd-sec-head h2 { margin: 0; font-size: 19px; font-weight: 600; }
-.rd-sec-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
-.rd-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; }
-.rd-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.rd-card h3 { margin: 0; font-size: 15px; font-weight: 600; }
-.rd-role { margin: 0; color: var(--muted); font-size: 13px; }
-.rd-cardtop { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
-.rd-badge { font-size: 11px; border-radius: 999px; padding: 2px 8px; white-space: nowrap; border: 1px solid var(--line); color: var(--muted); }
-.rd-badge.on { color: var(--ok); border-color: currentColor; }
-.rd-meets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.rd-meet { border-radius: 8px; background: var(--bg); padding: 8px 10px; min-width: 0; }
-.lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-.when { font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
-.what { font-size: 13px; color: var(--muted); }
-.none { font-size: 13px; color: var(--warn); margin-top: 2px; }
-.rd-work, .rd-goal { margin: 0; font-size: 13px; line-height: 1.55; }
-.rd-work strong { font-weight: 600; }
-.rd-goal { border-left: 3px solid var(--accent); padding-left: 8px; }
-.rd-goal.pending { border-left-color: var(--line); color: var(--muted); font-style: italic; }
-.rd-foot { font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
-.rd-bullets { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.5; display: flex; flex-direction: column; gap: 4px; }
-.rd-empty { color: var(--muted); font-size: 13px; padding: 14px; border: 1px dashed var(--line); border-radius: var(--r); }
-.rd-tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); }
-.rd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.rd-table th { text-align: left; font-weight: 600; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-.rd-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-.rd-table tr:last-child td { border-bottom: 0; }
-.nowrap { white-space: nowrap; font-variant-numeric: tabular-nums; }
-.overdue { color: var(--bad); }
-tr.isdone td.tx > div:first-child { text-decoration: line-through; color: var(--muted); }
-.rd-stage { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
-.rd-stage.now { background: var(--accent); color: #fff; border-color: var(--accent); }
-.rd-stage.done { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--fg); }
-.rd-origin { font-size: 11px; color: var(--muted); }
-.mark { font-size: 15px; color: var(--muted); }
-.mark.done { color: var(--ok); }
-.rd-lib { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 10px; }
-.rd-lib li { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.rd-lib a { color: var(--fg); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
-.rd-lib a:hover { text-decoration: underline; }
-.rd-lib li.rd-libgroup { grid-column: 1 / -1; background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 8px 0 4px; margin-top: 6px; }
-.rd-lib li.rd-libgroup a { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted, inherit); font-weight: 600; }
-.meta { font-size: 11px; color: var(--muted); }
-.rd-updated { font-size: 12px; color: var(--muted); }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-@media (max-width: 640px) { .hide-narrow { display: none; } .rd-title { font-size: 25px; } }
-@media (max-width: 420px) { .rd-meets { grid-template-columns: 1fr; } }
-</style></head><body>
-
-<div class="rd">
-  <header class="rd-head">
-    <div class="rd-logo"><img src="data:image/webp;base64,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" alt="Riddick Insurance Group"></div>
-    <div class="rd-headtext">
-      <h1 class="rd-title">Riddick Insurance Group</h1>
-      <p class="rd-subt">Client dashboard · Impact Performance Team · <span id="updated"></span></p>
-    </div>
-  </header>
-  <nav class="rd-nav" aria-label="Sections">
-    <a href="#sales">Sales</a><a href="#sales-call">Sales Call</a><a href="#leadership">Leadership</a><a href="#team">Service &amp; Ops</a><a href="#recruiting">Recruiting</a><a href="#library">Client Library</a><a href="#tasks">Open tasks</a>
-  </nav>
-  <section class="rd-sec" id="sales"><div class="rd-sec-head"><h2>Sales</h2><p>Producers with an IPT meeting in the last 2 months</p></div><div class="rd-cards" id="producers"></div></section>
-  <section class="rd-sec" id="sales-call"><div class="rd-sec-head"><h2>Sales Call</h2><p>Weekly team sales meeting with Patrick and the producers</p></div><div class="rd-cards" id="g-sales"></div></section>
-  <section class="rd-sec" id="leadership"><div class="rd-sec-head"><h2>Leadership</h2><p>Check-ins and recruiting updates with Mike</p></div><div class="rd-cards" id="g-mike"></div></section>
-  <section class="rd-sec" id="team"><div class="rd-sec-head"><h2>Service &amp; Ops</h2><p>Service and operations team members Savannah meets with</p></div><div class="rd-cards" id="team-cards"></div></section>
-  <section class="rd-sec" id="recruiting"><div class="rd-sec-head"><h2>Recruiting</h2><p>Roles IPT is recruiting for</p></div>
-    <div class="rd-tablewrap"><table class="rd-table"><thead><tr><th>Role</th><th>Stage</th><th>Hire</th><th>Notes</th><th class="hide-narrow">As of</th></tr></thead><tbody id="roles"></tbody></table></div></section>
-  <section class="rd-sec" id="library"><div class="rd-sec-head"><h2>Client Library</h2><p>Documents and spreadsheets the team may find useful</p></div><ul class="rd-lib" id="lib"></ul></section>
-  <section class="rd-sec" id="tasks"><div class="rd-sec-head"><h2>Open tasks</h2><p>Mike Riddick</p></div>
-    <div class="rd-tablewrap"><table class="rd-table"><thead><tr><th><span class="sr">Status</span></th><th>Task</th><th>Due</th><th class="hide-narrow">From</th></tr></thead><tbody id="task-rows"></tbody></table></div></section>
-</div>
-
-<script type="application/json" id="rd-data">{
-"as_of": "2026-11-16",
-"meetings": [
-{
-"date": "2026-01-05",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-01-05",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-01-06",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-01-06",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-01-08",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-01-08",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-01-12",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-01-12",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-01-13",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-01-13",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-01-15",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-01-19",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-01-19",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-01-20",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-01-20",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-01-22",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-01-26",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-01-26",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-01-27",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-01-27",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-01-29",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-02-05",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-02-06",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-02-06",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-02-10",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-02-10",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-02-13",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-02-16",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-02-16",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-02-17",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-02-19",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-02-20",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-02-23",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-02-23",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-02-24",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-02-24",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-02-26",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-03-02",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-03-02",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-03-03",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-03-03",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-03-05",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-03-05",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-03-09",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-03-09",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-03-11",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-03-11",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-03-16",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-03-16",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-03-17",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-03-17",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-03-19",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-03-23",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-03-23",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-03-24",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-03-24",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-03-30",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-03-30",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-03-31",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-04-06",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-04-07",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-04-07",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-04-07",
-"type": "Candidate Interview",
-"who": "Recruiting",
-"status": "Held"
-},
-{
-"date": "2026-04-09",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-04-13",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-04-13",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-04-14",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-04-15",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-04-16",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-04-21",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-04-21",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-04-22",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-04-27",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-04-27",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-04-28",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-04-28",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-04-30",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-05-04",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-05-04",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-05-05",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-05-07",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-05-07",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-05-11",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-05-11",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-05-12",
-"type": "Candidate Interview",
-"who": "Recruiting",
-"status": "Held"
-},
-{
-"date": "2026-05-14",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-05-18",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-05-18",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-05-21",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-05-26",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-05-26",
-"type": "Candidate Interview",
-"who": "Recruiting",
-"status": "Held"
-},
-{
-"date": "2026-05-27",
-"type": "Candidate Interview",
-"who": "Recruiting",
-"status": "Held"
-},
-{
-"date": "2026-06-01",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-06-01",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-06-05",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-06-08",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-06-08",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-06-09",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-06-15",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-06-15",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-06-18",
-"type": "1:1 Coaching",
-"who": "Derek",
-"status": "Held"
-},
-{
-"date": "2026-06-29",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-06-30",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-07-06",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-07-06",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-07-13",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-07-13",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-07-16",
-"type": "1:1 Coaching",
-"who": "Charlotte",
-"status": "Held"
-},
-{
-"date": "2026-07-27",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-07-27",
-"type": "Team Sales Meeting",
-"who": "Sales team",
-"status": "Held"
-},
-{
-"date": "2026-08-03",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-08-06",
-"type": "Candidate Interview",
-"who": "Recruiting",
-"status": "Held"
-},
-{
-"date": "2026-08-10",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-08-11",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-08-17",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-08-24",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-08-24",
-"type": "Recruiting Update",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-08-25",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-08-31",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-09-10",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-09-14",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-09-21",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-10-02",
-"type": "1:1 Coaching",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-10-12",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-10-20",
-"type": "Onboarding",
-"who": "Kevin",
-"status": "Held"
-},
-{
-"date": "2026-10-26",
-"type": "Recruiting Update",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-10-27",
-"type": "Sales Review",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-11-02",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-11-03",
-"type": "1:1 Coaching",
-"who": "Kevin",
-"status": "Held"
-},
-{
-"date": "2026-11-09",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-11-09",
-"type": "Planning Call",
-"who": "Kevin",
-"status": "Held"
-},
-{
-"date": "2026-11-09",
-"type": "Recruiting Update",
-"who": "Mike",
-"status": "Held"
-},
-{
-"date": "2026-11-12",
-"type": "Planning Call",
-"who": "Taylor",
-"status": "Held"
-},
-{
-"date": "2026-11-16",
-"type": "Planning Call",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-11-17",
-"type": "1:1 Coaching",
-"who": "Kevin",
-"status": "Scheduled"
-},
-{
-"date": "2026-11-23",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-11-23",
-"type": "Recruiting Update",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-11-24",
-"type": "1:1 Coaching",
-"who": "Kevin",
-"status": "Scheduled"
-},
-{
-"date": "2026-11-30",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-01",
-"type": "1:1 Coaching",
-"who": "Kevin",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-07",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-07",
-"type": "Recruiting Update",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-08",
-"type": "1:1 Coaching",
-"who": "Kevin",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-14",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-15",
-"type": "1:1 Coaching",
-"who": "Kevin",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-21",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-21",
-"type": "Recruiting Update",
-"who": "Mike",
-"status": "Scheduled"
-},
-{
-"date": "2026-12-28",
-"type": "Leadership Check-in",
-"who": "Mike",
-"status": "Scheduled"
-}
-],
-"card_notes": [
-{
-"key": "Sales team",
-"notes": "Move to IMS Connect in about 60 days; build a playbook to move high-value SageSure renewals (up 20–35%) to AAA or Travelers; update client data on every file touch; call clients about complex issues instead of emailing.",
-"meeting": "Weekly team sales meeting",
-"as_of": "2026-07-27"
-},
-{
-"key": "Mike",
-"notes": "Account manager candidate cleared for an offer, which Mike plans to send this week. The account manager role stays open afterward for a future succession hire. The commercial producer posting is reactivated, and high net worth sourcing continues.",
-"meeting": "Recruiting update with Jenni and Emily",
-"as_of": "2026-11-09"
-}
-],
-"producers": [
-{
-"name": "Kevin",
-"role": "Commercial Producer",
-"order": 2,
-"status": "Planning call held",
-"reviewNote": "New hire (Oct 7)",
-"planning": "2026-11-09",
-"focus": "Daily call blocks (8:30–10:30 AM, 2–4 PM): 100 touches and 25 new prospects a week, 8 appointments a month; shift networking to industry associations and referral partners",
-"goal": "$60K in new revenue (agency target $50K, plus $25K Erie and 2 life referrals)"
-},
-{
-"name": "Taylor",
-"role": "Personal Lines Producer",
-"order": 1,
-"status": "Planning call held",
-"review": "2026-10-27",
-"planning": "2026-11-12",
-"focus": "2–3 new COI appointments a week and 30–50 new LinkedIn connections; add 5 mortgage lenders as referral partners sending 4–5 referrals a month; 2–3 networking events a month plus sponsored open houses; track every partner in AgencyZoom",
-"goal": "$420K in P&C premium ($210K Erie), plus 18 PURE high net worth households or $210K PURE premium, and $20K in life premium"
-}
-],
-"roles": [
-{
-"role": "Commercial Lines Producer",
-"order": 1,
-"status": "Filled",
-"hire": "Kevin",
-"start": "2026-10-07",
-"latest": "Kevin started Oct 7; 2027 plan set Nov 9. Posting reactivated Nov 9 to keep sourcing for a future hire.",
-"updated": "2026-11-09"
-},
-{
-"role": "High Net Worth Personal Lines Producer",
-"order": 3,
-"status": "Sourcing",
-"latest": "No strong candidates yet; recent applicants passed on for fit. Sourcing continues. Listing: $50–60K base, $80–95K estimated first-year total; P&C license preferred.",
-"updated": "2026-11-09"
-},
-{
-"role": "Personal Lines Account Manager",
-"order": 2,
-"status": "Offer out",
-"latest": "Mike cleared a candidate for an offer on Nov 9 and is sending it this week. The role stays open afterward for a future succession hire; only top candidates will be submitted.",
-"updated": "2026-11-09"
-}
-],
-"library": [
-{
-"title": "Riddick Insurance Leadership Call Agenda",
-"mimeType": "application/vnd.google-apps.document",
-"modifiedTime": "2026-11-11T15:20:10.365Z",
-"viewUrl": "https://docs.google.com/document/d/1SyF9eQK63r0b759DaDuEX-DEn1Xi_8DJpdCcSZ4lEFU/edit?usp=drivesdk"
-},
-{
-"title": "2027 Goal Plans",
-"mimeType": "application/vnd.google-apps.folder",
-"modifiedTime": "2026-11-12T13:54:50.103Z",
-"viewUrl": "https://drive.google.com/drive/folders/1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8"
-},
-{
-"title": "2026 Sales Reviews",
-"mimeType": "application/vnd.google-apps.folder",
-"modifiedTime": "2026-11-12T13:54:49.068Z",
-"viewUrl": "https://drive.google.com/drive/folders/1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq"
-},
-{
-"title": "Taylor 2026 Sales Review",
-"mimeType": "application/pdf",
-"modifiedTime": "2026-11-12T16:08:28.876Z",
-"viewUrl": "https://drive.google.com/file/d/1g08jMP8bnGbkGxf0i1opFSk555V8IZJc/view?usp=drivesdk",
-"folder": "2026 Sales Reviews",
-"folderUrl": "https://drive.google.com/drive/folders/1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq"
-},
-{
-"title": "Kevin Midyette 2027 Goal & Plan",
-"mimeType": "application/pdf",
-"modifiedTime": "2026-11-12T16:04:34.168Z",
-"viewUrl": "https://drive.google.com/file/d/1C55I_owdbPZD4belyNpOxqMpRuMxNc_r/view?usp=drivesdk",
-"folder": "2027 Goal Plans",
-"folderUrl": "https://drive.google.com/drive/folders/1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8"
-},
-{
-"title": "Taylor 2027 Goals & Plans",
-"mimeType": "application/pdf",
-"modifiedTime": "2026-11-16T14:14:07.057Z",
-"viewUrl": "https://drive.google.com/file/d/13zlNS0_36JbvYVgPf3PJLyHTDUET2Ign/view?usp=drivesdk",
-"folder": "2027 Goal Plans",
-"folderUrl": "https://drive.google.com/drive/folders/1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8"
-}
-],
-"tasks": [
-{
-"n": 10,
-"task": "Set up the AgencyZoom Outlook connection so Kevin's emails send from his address",
-"status": "Open",
-"source": "Kevin Kick-off Call (Oct 20)"
-},
-{
-"n": 11,
-"task": "Decide on ERIE ovERdrIvE vs. direct carrier underwriter introductions for Kevin",
-"status": "Confirm",
-"source": "Mike & Patrick Check-in (Nov 2)"
-},
-{
-"n": 15,
-"task": "Interview the account manager candidate sent Oct 28",
-"status": "Confirm",
-"source": "Recruiting Update (Oct 26)",
-"done": true,
-"doneAt": "2026-11-09T15:00:00Z"
-},
-{
-"n": 20,
-"task": "Finalize details and send the account manager offer; keep IPT updated on the candidate's answer",
-"due": "2026-11-10",
-"status": "Open",
-"source": "Recruiting Update (Nov 9)"
-},
-{
-"n": 9,
-"task": "Connect Kevin with the ERIE rep once his login is active",
-"status": "Open",
-"source": "Kevin Kick-off Call (Oct 20)"
-}
-]
-}</script>
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: 15px; }
+.static-page { max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head><body><div class="static-page">
+<script type="application/json" id="static-data">{"data": {"card_notes": [{"key": "Sales team", "notes": "Move to IMS Connect in about 60 days; build a playbook to move high-value SageSure renewals (up 20–35%) to AAA or Travelers; update client data on every file touch; call clients about complex issues instead of emailing.", "meeting": "Weekly team sales meeting", "as_of": "2026-07-27", "history": "[]"}, {"key": "Mike", "notes": "Account manager candidate cleared for an offer, which Mike plans to send this week. The account manager role stays open afterward for a future succession hire. The commercial producer posting is reactivated, and high net worth sourcing continues.", "meeting": "Recruiting update with Jenni and Emily", "as_of": "2026-11-09", "history": "[{\"as_of\": \"2026-10-26\", \"meeting\": \"Recruiting update with Jenni and Emily\", \"notes\": \"PL Account Manager can be remote for candidates with independent agency experience; hybrid preferred for onboarding. High Net Worth Producer listing updated with a higher first-year earnings estimate; license preferred, not required, for candidates who bring a client base (otherwise licensed within 90 days). Jenni interviewing two PL AM candidates this week. Training moving to shadow-first, then computer-based. More producer candidates expected near year-end when bonuses pay out.\"}]"}], "hires": [{"Hire Date": "2026-10-16", "Role": "Personal Lines Account Manager"}, {"Hire Date": "2026-10-07", "Role": "Commercial Lines Insurance Producer"}, {"Hire Date": "2026-07-10", "Role": "Personal Lines Account Manager"}, {"Hire Date": "2026-03-23", "Role": "Personal Lines Agent (High Net Worth)"}], "library": {"files": [{"id": "1SyF9eQK63r0b759DaDuEX-DEn1Xi_8DJpdCcSZ4lEFU", "title": "Riddick Insurance Leadership Call Agenda", "mimeType": "application/vnd.google-apps.document", "modifiedTime": "2026-11-13T12:42:35.387Z", "viewUrl": "https://docs.google.com/document/d/1SyF9eQK63r0b759DaDuEX-DEn1Xi_8DJpdCcSZ4lEFU/edit?usp=drivesdk"}, {"id": "1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8", "title": "2027 Goal Plans", "mimeType": "application/vnd.google-apps.folder", "modifiedTime": "2026-11-12T13:54:50.103Z", "viewUrl": "https://drive.google.com/drive/folders/1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8"}, {"id": "1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq", "title": "2026 Sales Reviews", "mimeType": "application/vnd.google-apps.folder", "modifiedTime": "2026-11-12T13:54:49.068Z", "viewUrl": "https://drive.google.com/drive/folders/1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq"}]}, "meetings": [{"Date": "2026-01-05", "Month": "2026-01", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-05", "Month": "2026-01", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-06", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-06", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-08", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-08", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-12", "Month": "2026-01", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-12", "Month": "2026-01", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-13", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-13", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-15", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-19", "Month": "2026-01", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-19", "Month": "2026-01", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-20", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-20", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-22", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-26", "Month": "2026-01", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-26", "Month": "2026-01", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-27", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-27", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-01-29", "Month": "2026-01", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-05", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-06", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-06", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-10", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-10", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-13", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-16", "Month": "2026-02", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-16", "Month": "2026-02", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-17", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-19", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-20", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-23", "Month": "2026-02", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-23", "Month": "2026-02", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-24", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-24", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-02-26", "Month": "2026-02", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-02", "Month": "2026-03", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-02", "Month": "2026-03", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-03", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-03", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-05", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-05", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-09", "Month": "2026-03", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-09", "Month": "2026-03", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-11", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-11", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-16", "Month": "2026-03", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-16", "Month": "2026-03", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-17", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-17", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-19", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-23", "Month": "2026-03", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-23", "Month": "2026-03", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-24", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-24", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-30", "Month": "2026-03", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-30", "Month": "2026-03", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-03-31", "Month": "2026-03", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-06", "Month": "2026-04", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-07", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-07", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-07", "Month": "2026-04", "Meeting Type": "Candidate Interview", "Team Member": "Recruiting", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-09", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-13", "Month": "2026-04", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-13", "Month": "2026-04", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-14", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-15", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-16", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-21", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-21", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-22", "Month": "2026-04", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-27", "Month": "2026-04", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-27", "Month": "2026-04", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-28", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-28", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-04-30", "Month": "2026-04", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-04", "Month": "2026-05", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-04", "Month": "2026-05", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-05", "Month": "2026-05", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-07", "Month": "2026-05", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-07", "Month": "2026-05", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-11", "Month": "2026-05", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-11", "Month": "2026-05", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-12", "Month": "2026-05", "Meeting Type": "Candidate Interview", "Team Member": "Recruiting", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-14", "Month": "2026-05", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-18", "Month": "2026-05", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-18", "Month": "2026-05", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-21", "Month": "2026-05", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-26", "Month": "2026-05", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-26", "Month": "2026-05", "Meeting Type": "Candidate Interview", "Team Member": "Recruiting", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-05-27", "Month": "2026-05", "Meeting Type": "Candidate Interview", "Team Member": "Recruiting", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-01", "Month": "2026-06", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-01", "Month": "2026-06", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-05", "Month": "2026-06", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-08", "Month": "2026-06", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-08", "Month": "2026-06", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-09", "Month": "2026-06", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-15", "Month": "2026-06", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-15", "Month": "2026-06", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-18", "Month": "2026-06", "Meeting Type": "1:1 Coaching", "Team Member": "Derek", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-29", "Month": "2026-06", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-06-30", "Month": "2026-06", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-07-06", "Month": "2026-07", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-07-06", "Month": "2026-07", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-07-13", "Month": "2026-07", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-07-13", "Month": "2026-07", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-07-16", "Month": "2026-07", "Meeting Type": "1:1 Coaching", "Team Member": "Charlotte", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-07-27", "Month": "2026-07", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-07-27", "Month": "2026-07", "Meeting Type": "Team Sales Meeting", "Team Member": "Sales team", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-03", "Month": "2026-08", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-06", "Month": "2026-08", "Meeting Type": "Candidate Interview", "Team Member": "Recruiting", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-10", "Month": "2026-08", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-11", "Month": "2026-08", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-17", "Month": "2026-08", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-24", "Month": "2026-08", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-24", "Month": "2026-08", "Meeting Type": "Recruiting Update", "Team Member": "Mike", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-25", "Month": "2026-08", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-08-31", "Month": "2026-08", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-09-10", "Month": "2026-09", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-09-14", "Month": "2026-09", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-09-21", "Month": "2026-09", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-10-02", "Month": "2026-10", "Meeting Type": "1:1 Coaching", "Team Member": "Taylor", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-10-12", "Month": "2026-10", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-10-20", "Month": "2026-10", "Meeting Type": "Onboarding", "Team Member": "Kevin", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-10-26", "Month": "2026-10", "Meeting Type": "Recruiting Update", "Team Member": "Mike", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-10-27", "Month": "2026-10", "Meeting Type": "Sales Review", "Team Member": "Taylor", "Hours": 0.75, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-11-02", "Month": "2026-11", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-11-03", "Month": "2026-11", "Meeting Type": "1:1 Coaching", "Team Member": "Kevin", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-11-09", "Month": "2026-11", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-11-09", "Month": "2026-11", "Meeting Type": "Planning Call", "Team Member": "Kevin", "Hours": 0.75, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-11-09", "Month": "2026-11", "Meeting Type": "Recruiting Update", "Team Member": "Mike", "Hours": 0.5, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-11-12", "Month": "2026-11", "Meeting Type": "Planning Call", "Team Member": "Taylor", "Hours": 0.75, "Status": "Held", "Client Visible": "Yes"}, {"Date": "2026-11-16", "Month": "2026-11", "Meeting Type": "Planning Call", "Team Member": "Mike", "Hours": 1.5, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-11-17", "Month": "2026-11", "Meeting Type": "1:1 Coaching", "Team Member": "Kevin", "Hours": 0.75, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-11-23", "Month": "2026-11", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-11-23", "Month": "2026-11", "Meeting Type": "Recruiting Update", "Team Member": "Mike", "Hours": 0.5, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-11-24", "Month": "2026-11", "Meeting Type": "1:1 Coaching", "Team Member": "Kevin", "Hours": 0.75, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-11-30", "Month": "2026-11", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-01", "Month": "2026-12", "Meeting Type": "1:1 Coaching", "Team Member": "Kevin", "Hours": 0.75, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-07", "Month": "2026-12", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-07", "Month": "2026-12", "Meeting Type": "Recruiting Update", "Team Member": "Mike", "Hours": 0.5, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-08", "Month": "2026-12", "Meeting Type": "1:1 Coaching", "Team Member": "Kevin", "Hours": 0.75, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-14", "Month": "2026-12", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-15", "Month": "2026-12", "Meeting Type": "1:1 Coaching", "Team Member": "Kevin", "Hours": 0.75, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-21", "Month": "2026-12", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-21", "Month": "2026-12", "Meeting Type": "Recruiting Update", "Team Member": "Mike", "Hours": 0.5, "Status": "Scheduled", "Client Visible": "Yes"}, {"Date": "2026-12-28", "Month": "2026-12", "Meeting Type": "Leadership Check-in", "Team Member": "Mike", "Hours": 1.0, "Status": "Scheduled", "Client Visible": "Yes"}], "pdf_downloads": {"files": [{"title": "Taylor Updated - 2027 Goals & Plans", "fileName": "Taylor Updated - 2027 Goals & Plans.pdf", "folder": "2027 Goal Plans", "folderId": "1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8", "driveId": "13zlNS0_36JbvYVgPf3PJLyHTDUET2Ign", "url": "files/f99a30a812e81dc3e18eb7cb640d2237.pdf", "bytes": 193396, "modifiedTime": "2026-11-16T14:14:07.057Z"}, {"title": "Kevin Midyette 2027 Goal & Plan", "fileName": "Kevin Midyette 2027 Goal & Plan.pdf", "folder": "2027 Goal Plans", "folderId": "1OBSyGVA3Za5JZb0NIYa5YX6QyqaD9pu8", "driveId": "1C55I_owdbPZD4belyNpOxqMpRuMxNc_r", "url": "files/2c239eabf41dc29bb3af7862cb7a4426.pdf", "bytes": 112686, "modifiedTime": "2026-11-12T16:04:34.168Z"}, {"title": "Taylor 2026 Sales Review", "fileName": "Taylor 2026 Sales Review.pdf", "folder": "2026 Sales Reviews", "folderId": "1wX3ZZTk8x2msXI9A1gLKEbvb7TmN-2tq", "driveId": "1g08jMP8bnGbkGxf0i1opFSk555V8IZJc", "url": "files/a2dfc751ef9a1dbe0260f67f6b4d7c59.pdf", "bytes": 112640, "modifiedTime": "2026-11-12T16:08:28.876Z"}]}, "phone_calls": [{"Date": "2026-04-07", "Month": "2026-04", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "No"}, {"Date": "2026-04-13", "Month": "2026-04", "Person": "Mike", "Minutes": 40.0, "Hours": 0.667, "Same Day As Meeting": "Yes"}, {"Date": "2026-04-15", "Month": "2026-04", "Person": "Mike", "Minutes": 25.0, "Hours": 0.417, "Same Day As Meeting": "No"}, {"Date": "2026-04-16", "Month": "2026-04", "Person": "Mike", "Minutes": 45.0, "Hours": 0.75, "Same Day As Meeting": "No"}, {"Date": "2026-04-22", "Month": "2026-04", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-04-27", "Month": "2026-04", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-04-29", "Month": "2026-04", "Person": "Mike", "Minutes": 15.0, "Hours": 0.25, "Same Day As Meeting": "No"}, {"Date": "2026-04-30", "Month": "2026-04", "Person": "Mike", "Minutes": 25.0, "Hours": 0.417, "Same Day As Meeting": "No"}, {"Date": "2026-05-04", "Month": "2026-05", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-05-07", "Month": "2026-05", "Person": "Mike", "Minutes": 15.0, "Hours": 0.25, "Same Day As Meeting": "No"}, {"Date": "2026-05-08", "Month": "2026-05", "Person": "Mike", "Minutes": 15.0, "Hours": 0.25, "Same Day As Meeting": "No"}, {"Date": "2026-05-11", "Month": "2026-05", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-05-14", "Month": "2026-05", "Person": "Mike", "Minutes": 25.0, "Hours": 0.417, "Same Day As Meeting": "No"}, {"Date": "2026-05-18", "Month": "2026-05", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-05-27", "Month": "2026-05", "Person": "Mike", "Minutes": 30.0, "Hours": 0.5, "Same Day As Meeting": "No"}, {"Date": "2026-05-28", "Month": "2026-05", "Person": "Mike", "Minutes": 25.0, "Hours": 0.417, "Same Day As Meeting": "No"}, {"Date": "2026-06-01", "Month": "2026-06", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-06-03", "Month": "2026-06", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "No"}, {"Date": "2026-06-05", "Month": "2026-06", "Person": "Mike", "Minutes": 30.0, "Hours": 0.5, "Same Day As Meeting": "No"}, {"Date": "2026-06-08", "Month": "2026-06", "Person": "Mike", "Minutes": 45.0, "Hours": 0.75, "Same Day As Meeting": "Yes"}, {"Date": "2026-06-09", "Month": "2026-06", "Person": "Mike", "Minutes": 10.0, "Hours": 0.167, "Same Day As Meeting": "No"}, {"Date": "2026-06-15", "Month": "2026-06", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-06-30", "Month": "2026-06", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "No"}, {"Date": "2026-07-06", "Month": "2026-07", "Person": "Mike", "Minutes": 35.0, "Hours": 0.583, "Same Day As Meeting": "Yes"}, {"Date": "2026-07-13", "Month": "2026-07", "Person": "Mike", "Minutes": 30.0, "Hours": 0.5, "Same Day As Meeting": "Yes"}, {"Date": "2026-07-27", "Month": "2026-07", "Person": "Mike", "Minutes": 30.0, "Hours": 0.5, "Same Day As Meeting": "Yes"}, {"Date": "2026-07-31", "Month": "2026-07", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "No"}, {"Date": "2026-08-03", "Month": "2026-08", "Person": "Mike", "Minutes": 45.0, "Hours": 0.75, "Same Day As Meeting": "Yes"}, {"Date": "2026-08-10", "Month": "2026-08", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-08-13", "Month": "2026-08", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "No"}, {"Date": "2026-08-17", "Month": "2026-08", "Person": "Mike", "Minutes": 35.0, "Hours": 0.583, "Same Day As Meeting": "Yes"}, {"Date": "2026-08-18", "Month": "2026-08", "Person": "Mike", "Minutes": 25.0, "Hours": 0.417, "Same Day As Meeting": "No"}, {"Date": "2026-08-24", "Month": "2026-08", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "Yes"}, {"Date": "2026-08-24", "Month": "2026-08", "Person": "Mike", "Minutes": 45.0, "Hours": 0.75, "Same Day As Meeting": "Yes"}, {"Date": "2026-08-28", "Month": "2026-08", "Person": "Mike", "Minutes": 25.0, "Hours": 0.417, "Same Day As Meeting": "No"}, {"Date": "2026-08-31", "Month": "2026-08", "Person": "Mike", "Minutes": 50.0, "Hours": 0.833, "Same Day As Meeting": "Yes"}, {"Date": "2026-09-01", "Month": "2026-09", "Person": "Mike", "Minutes": 35.0, "Hours": 0.583, "Same Day As Meeting": "No"}, {"Date": "2026-09-08", "Month": "2026-09", "Person": "Mike", "Minutes": 50.0, "Hours": 0.833, "Same Day As Meeting": "No"}, {"Date": "2026-09-14", "Month": "2026-09", "Person": "Mike", "Minutes": 25.0, "Hours": 0.417, "Same Day As Meeting": "Yes"}, {"Date": "2026-09-18", "Month": "2026-09", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "No"}, {"Date": "2026-09-21", "Month": "2026-09", "Person": "Mike", "Minutes": 50.0, "Hours": 0.833, "Same Day As Meeting": "Yes"}, {"Date": "2026-10-12", "Month": "2026-10", "Person": "Mike", "Minutes": 60.0, "Hours": 1.0, "Same Day As Meeting": "Yes"}, {"Date": "2026-10-16", "Month": "2026-10", "Person": "Mike", "Minutes": 20.0, "Hours": 0.333, "Same Day As Meeting": "No"}], "recruiting": [{"Client": "Riddick Insurance", "Applicants": 339.0, "Interviewed": 25.0, "Hired": 4.0, "Interview rate": 0.0737, "Hire rate of interviewed": 0.16}]}, "db": {"producer_rows": [{"id": "kevin", "data": {"focus": "Daily call blocks (8:30–10:30 AM, 2–4 PM): 100 touches and 25 new prospects a week, 8 appointments a month; shift networking to industry associations and referral partners", "goal": "$60K in new revenue (agency target $50K, plus $25K Erie and 2 life referrals)", "name": "Kevin", "order": 2, "planning": "2026-11-09", "review": "", "reviewNote": "New hire (Oct 7)", "role": "Commercial Producer", "status": "Planning call held"}}, {"id": "taylor", "data": {"focus": "Run a structured COI process in AgencyZoom, logging every call, note and follow-up; meet 2–3 COIs a week to add 5 new strategic partners in 2027; target 2–3 PURE high-value homes a month; add rental-property questions to the fact finder to speed up quoting", "goal": "$420K P&C premium ($210K with Erie) and $20K life premium", "name": "Taylor", "order": 1, "planning": "2026-11-12", "review": "2026-10-27", "role": "Personal Lines Producer", "status": "Planning call held"}}], "role_rows": [{"id": "cl_producer", "data": {"hire": "Kevin", "latest": "Kevin started Oct 7; 2027 plan set Nov 9. Posting reactivated Nov 9 to keep sourcing for a future hire.", "order": 1, "role": "Commercial Lines Producer", "start": "2026-10-07", "status": "Filled", "updated": "2026-11-09"}}, {"id": "hnw_producer", "data": {"hire": "", "latest": "No strong candidates yet; recent applicants passed on for fit. Sourcing continues. Listing: $50–60K base, $80–95K estimated first-year total; P&C license preferred.", "order": 3, "role": "High Net Worth Personal Lines Producer", "start": "", "status": "Sourcing", "updated": "2026-11-09"}}, {"id": "pl_am", "data": {"hire": "", "latest": "Mike cleared a candidate for an offer on Nov 9 and is sending it this week. The role stays open afterward for a future succession hire; only top candidates will be submitted.", "order": 2, "role": "Personal Lines Account Manager", "start": "", "status": "Offer out", "updated": "2026-11-09"}}], "task_rows": [{"id": "t1", "data": {"assigned": "2026-10-20", "due": "2026-11-03", "n": 1, "owner": "Kevin", "source": "Kevin Kick-off Call (Oct 20)", "status": "Open", "task": "Build a 25–50 prospect list for Nov/Dec renewals and start calling"}}, {"id": "t10", "data": {"assigned": "2026-10-20", "due": null, "n": 10, "owner": "Mike", "source": "Kevin Kick-off Call (Oct 20)", "status": "Open", "task": "Set up the AgencyZoom Outlook connection so Kevin's emails send from his address"}}, {"id": "t11", "data": {"assigned": "2026-10-23", "due": null, "n": 11, "owner": "Mike", "source": "Mike & Patrick Check-in (Nov 2)", "status": "Confirm", "task": "Decide on ERIE ovERdrIvE vs. direct carrier underwriter introductions for Kevin"}}, {"id": "t13", "data": {"assigned": "2026-10-27", "due": "2026-11-12", "n": 13, "owner": "Taylor", "source": "Taylor 2026 Sales Review (Oct 27)", "status": "Open", "task": "Build a 9-month laddered COI plan focused on lenders, financial planners and high-value-home realtors"}}, {"id": "t14", "data": {"assigned": "2026-10-27", "due": "2026-11-12", "n": 14, "owner": "Taylor", "source": "Taylor 2026 Sales Review (Oct 27)", "status": "Open", "task": "Review the new COI plan with Mike before the planning call"}}, {"id": "t15", "data": {"assigned": "2026-10-28", "due": null, "n": 15, "owner": "Mike", "source": "Recruiting Update (Oct 26)", "status": "Confirm", "task": "Interview the account manager candidate sent Oct 28"}}, {"id": "t16", "data": {"assigned": "2026-10-26", "due": null, "n": 16, "owner": "Jenni", "source": "Recruiting Update (Oct 26)", "status": "Ongoing", "task": "Keep sourcing account manager candidates and report back after interviews"}}, {"id": "t17", "data": {"assigned": "2026-10-26", "due": null, "n": 17, "owner": "Emily", "source": "Recruiting Update (Oct 26)", "status": "Ongoing", "task": "Source high-net-worth producer candidates with portable client bases"}}, {"id": "t18", "data": {"assigned": "2026-11-09", "due": null, "n": 18, "owner": "Kevin", "source": "Kevin 2027 Planning Call (Nov 9)", "status": "Open", "task": "Update the 2027 plan with agency goals ($50K revenue, $25K Erie, 2 life referrals) and the new networking focus; send it to Patrick, Zach and Michele"}}, {"id": "t19", "data": {"assigned": "2026-11-09", "due": null, "n": 19, "owner": "Kevin", "source": "Kevin 2027 Planning Call (Nov 9)", "status": "Open", "task": "Make a final request to ACOC Tractor for policy documents; pause the opportunity if they decline"}}, {"id": "t2", "data": {"assigned": "2026-10-20", "due": null, "n": 2, "owner": "Kevin", "source": "Kevin Kick-off Call (Oct 20)", "status": "Ongoing", "task": "Build a 100-prospect Q1 list (1/1–3/1 renewals) from X-Dates into AgencyZoom; add 20 qualified prospects a week"}}, {"id": "t20", "data": {"assigned": "2026-11-09", "due": "2026-11-10", "n": 20, "owner": "Mike", "source": "Recruiting Update (Nov 9)", "status": "Open", "task": "Finalize details and send the account manager offer; keep IPT updated on the candidate's answer"}}, {"id": "t21", "data": {"assigned": "2026-11-09", "due": null, "n": 21, "owner": "Kevin", "source": "Kevin 2027 Planning Call (Nov 9)", "status": "Open", "task": "Research and pick a target industry association (e.g., Home Builders of NC) and contact its organizer about fit and next steps"}}, {"id": "t22", "data": {"assigned": "2026-11-09", "due": null, "n": 22, "owner": "Kevin", "source": "Kevin 2027 Planning Call (Nov 9)", "status": "Open", "task": "Discuss the Biggs & Smith opportunity with Mike"}}, {"id": "t23", "data": {"assigned": "2026-11-12", "due": "2026-11-12", "n": 23, "owner": "Taylor", "source": "Taylor 2027 Planning Call (Nov 12)", "status": "Open", "task": "Update the 2027 plan with the $210K Erie target, a total book size goal, the AgencyZoom COI process and new fact-finder rental questions; resend to Patrick"}}, {"id": "t24", "data": {"assigned": "2026-11-12", "due": null, "n": 24, "owner": "Taylor", "source": "Taylor 2027 Planning Call (Nov 12)", "status": "Ongoing", "task": "Log all COI touchpoints in AgencyZoom and set follow-up tasks"}}, {"id": "t3", "data": {"assigned": "2026-10-20", "due": null, "n": 3, "owner": "Kevin", "source": "Kevin Kick-off Call (Oct 20)", "status": "Ongoing", "task": "Track prospecting activity (calls, touches) in the Excel tracker"}}, {"id": "t4", "data": {"assigned": "2026-10-20", "due": "2026-11-09", "n": 4, "owner": "Kevin", "source": "Kevin Kick-off Call (Oct 20)", "status": "Open", "task": "Draft a personal 2027 business plan for the planning call"}}, {"id": "t5", "data": {"assigned": "2026-11-02", "due": "2026-11-06", "n": 5, "owner": "Zach", "source": "Mike & Patrick Check-in (Nov 2)", "status": "Open", "task": "Review Kevin's prospect lists with him before the planning call"}}, {"id": "t6", "data": {"assigned": "2026-11-02", "due": null, "n": 6, "owner": "Zach", "source": "Mike & Patrick Check-in (Nov 2)", "status": "Open", "task": "Spot-check Kevin's AgencyZoom pipeline for qualified prospects"}}, {"id": "t7", "data": {"assigned": "2026-11-02", "due": "2026-11-09", "n": 7, "owner": "Patrick", "source": "Mike & Patrick Check-in (Nov 2)", "status": "Open", "task": "Set Kevin's 2027 activity and KPI targets (call volume, new contacts)"}}, {"id": "t8", "data": {"assigned": "2026-10-20", "due": null, "n": 8, "owner": "Patrick", "source": "Kevin Kick-off Call (Oct 20)", "status": "Confirm", "task": "Set up a text thread with Kevin and Zach for ongoing support"}}, {"id": "t9", "data": {"assigned": "2026-10-20", "due": null, "n": 9, "owner": "Mike", "source": "Kevin Kick-off Call (Oct 20)", "status": "Open", "task": "Connect Kevin with the ERIE rep once his login is active"}}], "resources": [], "task_checks": [{"id": "t13", "data": {"done": true, "doneAt": "2026-11-12T14:52:07Z", "doneBy": null}}, {"id": "t15", "data": {"done": true, "doneAt": "2026-11-09T15:00:00Z", "doneBy": null}}, {"id": "t18", "data": {"done": true, "doneAt": "2026-11-09T21:34:36Z", "doneBy": null}}, {"id": "t23", "data": {"done": true, "doneAt": "2026-11-13T16:54:40Z", "doneBy": null}}, {"id": "t4", "data": {"done": true, "doneAt": "2026-11-09T20:00:00Z", "doneBy": null}}]}}</script>
 <script>
-(() => {
-const D = JSON.parse(document.getElementById('rd-data').textContent);
-const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const dt = (s) => new Date(String(s).slice(0, 10) + 'T00:00:00Z');
-const fmtDay = (s) => { if (!s) return ''; const d = dt(s); return MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); };
-const fmtLong = (s) => { if (!s) return ''; const d = dt(s); return DOW[d.getUTCDay()] + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCDate(); };
-const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-const safeLink = (u) => { try { const x = new URL(String(u)); return x.protocol === 'https:' ? x.href : null; } catch (_) { return null; } };
-const today = new Date().toISOString().slice(0, 10);
-const daysAgo = (n) => { const c = new Date(); c.setUTCHours(0, 0, 0, 0); c.setUTCDate(c.getUTCDate() - n); return c; };
-
-document.getElementById('updated').textContent = 'Updated ' + fmtLong(D.as_of);
-
-/* last and next meeting per person or group */
-const touch = new Map();
-for (const m of D.meetings || []) for (const who of String(m.who).split(' & ').map((s) => s.trim()).filter(Boolean)) {
-  if (!touch.has(who)) touch.set(who, { key: who, last_date: '', last_type: '', next_date: '', next_type: '' });
-  const r = touch.get(who);
-  if (m.status === 'Held') { if (m.date > r.last_date) { r.last_date = m.date; r.last_type = m.type; } }
-  else if (m.status === 'Scheduled' && m.date >= today && (!r.next_date || m.date < r.next_date)) { r.next_date = m.date; r.next_type = m.type; }
-}
-const isRecent = (k) => { const r = touch.get(k); return !!(r && r.last_date) && dt(r.last_date) >= daysAgo(61); };
-const TL = { 'Leadership Check-in': 'Leadership check-in', 'Team Sales Meeting': 'Team sales meeting', '1:1 Coaching': '1:1 coaching', 'Sales Review': '2026 sales review', 'Planning Call': '2027 planning call', 'Onboarding': 'Onboarding', 'Recruiting Update': 'Recruiting update', 'Candidate Interview': 'Candidate interview' };
-function meetBoxes(key) {
-  const row = touch.get(key); const w = el('div', 'rd-meets');
-  for (const [k, label] of [['last', 'Last IPT meeting'], ['next', 'Next IPT meeting']]) {
-    const m = el('div', 'rd-meet'); m.append(el('div', 'lbl', label));
-    if (row && row[k + '_date']) m.append(el('div', 'when', fmtLong(row[k + '_date'])), el('div', 'what', TL[row[k + '_type']] || row[k + '_type']));
-    else m.append(el('div', 'none', k === 'next' ? 'None scheduled' : 'None found'));
-    w.append(m);
+/* Stand-in for the Claude dashboard runtime: serves the saved data read-only and runs the page's own drawing code. */
+(function () {
+  const RAW = JSON.parse(document.getElementById('static-data').textContent);
+  const loaders = {}, calcs = {}, draws = {}, cache = {};
+  function get(id) {
+    if (cache[id]) return cache[id];
+    if (calcs[id]) {
+      const c = calcs[id];
+      const args = (c.inputs || []).map((i) => { const v = get(i); return v.status === 'ok' ? v.data : []; });
+      try { cache[id] = { status: 'ok', data: c.fn(...args) }; }
+      catch (e) { console.error(id, e); cache[id] = { status: 'error', data: null, message: String(e) }; }
+      return cache[id];
+    }
+    if (Object.prototype.hasOwnProperty.call(RAW.data, id)) {
+      let d = RAW.data[id];
+      if (loaders[id]) {
+        try { d = loaders[id].fn({ answer: d, text: JSON.stringify(d) }); }
+        catch (e) { console.error(id, e); return (cache[id] = { status: 'error', data: [], message: String(e) }); }
+      }
+      return (cache[id] = { status: 'ok', data: d });
+    }
+    return { status: 'missing', data: [] };
   }
-  return w;
-}
-function notesBlock(key) {
-  const r = (D.card_notes || []).find((x) => x.key === key);
-  if (!r || !r.notes) return [];
-  const ul = el('ul', 'rd-bullets');
-  String(r.notes).split(/\n|(?<=[.!?])\s+(?=[A-Z0-9$(“"])/).map((s) => s.replace(/^[•\-\s]+/, '').trim()).filter(Boolean).forEach((s) => ul.append(el('li', null, s)));
-  const foot = el('div', 'rd-foot'); foot.append(el('span', null, 'From ' + (r.meeting || '') + (r.as_of ? ', ' + fmtLong(r.as_of) : '')));
-  return [ul, foot];
-}
-const card = (name, role) => { const c = el('article', 'rd-card'); const top = el('div', 'rd-cardtop'); const h = el('div'); h.append(el('h3', null, name)); if (role) h.append(el('p', 'rd-role', role)); top.append(h); c.append(top); return [c, top]; };
-
-/* Sales */
-const prods = (D.producers || []).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
-const pc = prods.filter((p) => isRecent(p.name)).map((p) => {
-  const [c, top] = card(p.name, p.role || 'Producer');
-  top.append(el('span', 'rd-badge' + (p.status === 'Planning call held' ? ' on' : ''), p.status || ''));
-  c.append(meetBoxes(p.name));
-  const steps = el('div', 'rd-foot'); steps.append(el('span', null, '2026 review: ' + (p.review ? fmtDay(p.review) : (p.reviewNote || '—'))), el('span', null, '2027 planning: ' + (p.planning ? fmtDay(p.planning) : '—'))); c.append(steps);
-  if (p.focus) { const w = el('p', 'rd-work'); w.append(el('strong', null, 'Focus: '), document.createTextNode(p.focus)); c.append(w); }
-  const pend = p.planning ? (p.status === 'Planning call held' ? 'Goal to be added from ' + fmtDay(p.planning) + ' planning call' : '2027 goal set at ' + fmtDay(p.planning) + ' planning call') : '2027 planning call to be scheduled';
-  c.append(p.goal ? el('p', 'rd-goal', '2027 goal: ' + p.goal) : el('p', 'rd-goal pending', pend));
-  return c;
-});
-document.getElementById('producers').replaceChildren(...(pc.length ? pc : [el('div', 'rd-empty', 'No producer meetings in the last 2 months.')]));
-
-/* Sales Call, Leadership */
-for (const [id, key, name, role] of [['g-sales', 'Sales team', 'Sales team', 'Weekly team sales meeting'], ['g-mike', 'Mike', 'Mike Riddick', 'President · weekly check-in with Patrick']]) {
-  const [c] = card(name, role); c.append(meetBoxes(key), ...notesBlock(key)); document.getElementById(id).replaceChildren(c);
-}
-
-/* Service & Ops */
-const skip = new Set(['Sales team', 'Mike', 'Recruiting', ...prods.map((p) => p.name)]);
-const team = [...touch.values()].filter((r) => !skip.has(r.key) && isRecent(r.key)).sort((a, b) => b.last_date.localeCompare(a.last_date) || a.key.localeCompare(b.key));
-document.getElementById('team-cards').replaceChildren(...(team.length ? team.map((r) => { const [c] = card(r.key); c.append(meetBoxes(r.key), ...notesBlock(r.key)); return c; }) : [el('div', 'rd-empty', 'No meetings with service or operations team members in the last 2 months.')]));
-
-/* Recruiting */
-const rb = document.getElementById('roles'); const roles = (D.roles || []).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
-const STAGE = { Filled: ['Role filled', 'done'], 'On hold': ['Paused', ''] };
-if (!roles.length) { const tr = el('tr'); const td = el('td', 'rd-origin', 'No open roles right now.'); td.colSpan = 5; tr.append(td); rb.append(tr); }
-for (const r of roles) {
-  const tr = el('tr'); const [label, cls] = STAGE[r.status] || [r.status || '—', 'now'];
-  const st = el('td'); st.append(el('span', 'rd-stage' + (cls ? ' ' + cls : ''), label));
-  const hire = el('td', 'nowrap', r.hire || '—'); if (r.hire && r.start) hire.append(el('div', 'rd-origin', 'Started ' + fmtDay(r.start)));
-  tr.append(el('td', null, r.role), st, hire, el('td', null, r.latest || ''), el('td', 'nowrap hide-narrow', fmtDay(r.updated))); rb.append(tr);
-}
-
-/* Client Library */
-const KIND = (m) => /folder/.test(m) ? 'Folder' : /document/.test(m) ? 'Doc' : /spreadsheet|excel|sheet/.test(m) ? 'Sheet' : /presentation|powerpoint/.test(m) ? 'Slides' : /pdf/.test(m) ? 'PDF' : /image/.test(m) ? 'Image' : 'File';
-const libCard = (f) => { const li = el('li'); const href = safeLink(f.viewUrl); const a = el(href ? 'a' : 'span', null, f.title || 'Untitled'); if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener'; } li.append(a, el('span', 'meta', KIND(f.mimeType || '') + (f.modifiedTime ? ' · updated ' + fmtDay(f.modifiedTime) : ''))); return li; };
-const libAll = D.library || [];
-const libGroupNames = new Set(libAll.filter((f) => f.folder).map((f) => f.folder));
-const lib = libAll.filter((f) => !f.folder && !(/folder/.test(f.mimeType || '') && libGroupNames.has(f.title))).map(libCard);
-const libGroups = [];
-libAll.filter((f) => f.folder).forEach((f) => { let g = libGroups.find((x) => x.name === f.folder); if (!g) { g = { name: f.folder, url: f.folderUrl, files: [] }; libGroups.push(g); } g.files.push(f); });
-libGroups.sort((x, y) => x.name.localeCompare(y.name)).forEach((g) => { const h = el('li', 'rd-libgroup'); const href = safeLink(g.url); const ha = el(href ? 'a' : 'span', null, g.name + ' (folder)'); if (href) { ha.href = href; ha.target = '_blank'; ha.rel = 'noopener'; } h.append(ha); lib.push(h); g.files.sort((x, y) => (x.title || '').localeCompare(y.title || '')).forEach((f) => lib.push(libCard(f))); });
-document.getElementById('lib').replaceChildren(...(lib.length ? lib : [el('li', 'meta', 'Resources will be added here soon.')]));
-
-/* Open tasks: done tasks stay visible for a week after they were completed */
-const tb = document.getElementById('task-rows'); const order = { Open: 0, Ongoing: 1, Confirm: 2 }; const cut = daysAgo(7);
-const tasks = (D.tasks || []).filter((t) => !(t.done && (!(t.doneAt || t.due) || dt(t.doneAt || t.due) < cut)))
-  .sort((a, b) => (!!a.done - !!b.done) || (order[a.status] ?? 9) - (order[b.status] ?? 9) || String(a.due || '9999').localeCompare(String(b.due || '9999')) || (a.n || 0) - (b.n || 0));
-if (!tasks.length) { const tr = el('tr'); const td = el('td', 'rd-origin', 'No open tasks.'); td.colSpan = 4; tr.append(td); tb.append(tr); }
-for (const t of tasks) {
-  const tr = el('tr'); if (t.done) tr.className = 'isdone';
-  const mk = el('td'); mk.append(el('span', 'mark' + (t.done ? ' done' : ''), t.done ? '✓' : '○')); mk.title = t.done ? 'Done' : 'Open';
-  const tx = el('td', 'tx'); tx.append(el('div', null, t.task));
-  if (t.done) tx.append(el('div', 'rd-origin', 'Done' + (t.doneAt ? ' ' + fmtDay(t.doneAt) : '')));
-  else if (t.status === 'Confirm') tx.append(el('div', 'rd-origin', 'To confirm'));
-  else if (t.status === 'Ongoing') tx.append(el('div', 'rd-origin', 'Ongoing'));
-  tr.append(mk, tx, el('td', 'nowrap' + (!t.done && t.due && t.due < today ? ' overdue' : ''), t.due ? fmtDay(t.due) : '—'), el('td', 'rd-origin hide-narrow', t.source || ''));
-  tb.append(tr);
-}
+  function run(name) {
+    const fn = draws[name]; if (!fn) return;
+    document.querySelectorAll('[data-draw="' + name + '"]').forEach((el) => { try { fn(el); } catch (e) { console.error(name, e); } });
+  }
+  window.dash = {
+    data: (id) => Object.assign({ refreshing: false, meta: {} }, get(id)),
+    calc: (id, spec) => { calcs[id] = spec; },
+    loader: (id, spec) => { loaders[id] = spec; },
+    draw: (name, fn) => { if (typeof fn === 'function') draws[name] = fn; else run(name); },
+    onData: (fn) => { try { fn(); } catch (e) { console.error(e); } },
+    refresh: () => {}, params: () => ({}), setParams: () => {}, resetParams: () => {}, setLink: () => {},
+    _runAll: () => Object.keys(draws).forEach(run)
+  };
+  const readOnly = () => Promise.reject(new Error('This copy is read-only.'));
+  const snap = (name) => ({ docs: (RAW.db[name] || []).map((d) => ({ id: d.id, data: () => d.data })) });
+  const db = { collection: (name) => ({
+    onSnapshot: (cb) => { setTimeout(() => cb(snap(name)), 0); return () => {}; },
+    doc: () => ({ set: readOnly, delete: readOnly }), add: readOnly
+  }) };
+  const user = { can: async () => false, canEdit: async () => false, id: async () => null };
+  window.claude = { use: async (cap) => cap === 'db' ? db : cap === 'user' ? user : null };
 })();
 </script>
-</body></html>
+
+<style>
+.rd { --rd-accent: #8a6d12; font-family: var(--font-anthropic-sans); color: var(--color-fg); display: flex; flex-direction: column; gap: var(--cds-gap-xl); }
+.rd-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-lg); }
+.rd-logo { background: #ffffff; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); flex: 0 0 auto; }
+.rd-logo img { display: block; width: 150px; max-width: 100%; height: auto; }
+.rd-headtext { flex: 1 1 260px; min-width: 0; }
+.rd-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; line-height: 1.15; }
+.rd-subt { margin: 4px 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rd-take { margin: var(--cds-gap-sm) 0 0; font-size: var(--cds-font-size-body); line-height: 1.5; }
+.rd-take b { font-weight: var(--cds-font-weight-medium); }
+.rd-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+.rd-nav a { font-size: var(--cds-font-size-caption); color: var(--color-fg); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 12px; background: var(--color-panel); }
+.rd-nav a:hover { border-color: var(--color-fg-muted); }
+.rd-sec { display: flex; flex-direction: column; gap: var(--cds-gap-md); scroll-margin-top: 12px; }
+.rd-sec-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--cds-gap-sm); border-bottom: 2px solid var(--rd-accent); padding-bottom: var(--cds-pad-sm); }
+.rd-sec-head h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.rd-sec-head p { margin: 2px 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rd-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: var(--cds-gap-md); min-height: 80px; }
+.rd-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+.rd-card h3 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+.rd-role { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rd-cardtop { display: flex; justify-content: space-between; gap: var(--cds-gap-sm); align-items: flex-start; }
+.rd-badge { font-size: 11px; border-radius: 999px; padding: 2px 8px; white-space: nowrap; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); }
+.rd-badge.on { color: var(--color-ok); border-color: currentColor; }
+.rd-meets { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cds-gap-sm); }
+.rd-meet { border-radius: calc(var(--cds-radius) - 2px); background: var(--color-bg); padding: var(--cds-pad-sm); min-width: 0; }
+.rd-meet .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--color-fg-muted); }
+.rd-meet .when { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.rd-meet .what { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.rd-meet .none { font-size: var(--cds-font-size-caption); color: var(--color-warn); margin-top: 2px; }
+.rd-work { margin: 0; font-size: var(--cds-font-size-caption); line-height: 1.55; }
+.rd-work strong { font-weight: var(--cds-font-weight-medium); }
+.rd-goal { margin: 0; font-size: var(--cds-font-size-caption); line-height: 1.55; border-left: 3px solid var(--rd-accent); padding-left: var(--cds-pad-sm); }
+.rd-goal.pending { border-left-color: var(--color-border-line); color: var(--color-fg-muted); font-style: italic; }
+.rd-foot { font-size: 11px; color: var(--color-fg-muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.rd-empty { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: var(--cds-pad-md); border: 1px dashed var(--color-border-line); border-radius: var(--cds-radius); }
+.rd-tablewrap { overflow-x: auto; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
+.rd-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+.rd-table th { text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 8px 12px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.rd-table td { padding: 10px 12px; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.rd-table tr:last-child td { border-bottom: 0; }
+.rd-table td.nowrap { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rd-table .overdue { color: var(--color-bad); }
+.rd-table tr.rd-grp td { background: var(--color-bg); font-weight: var(--cds-font-weight-medium); color: var(--color-fg); padding-top: 12px; }
+.rd-table tr.isdone td.tx > div:first-child { text-decoration: line-through; color: var(--color-fg-muted); }
+.rd-stage { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); white-space: nowrap; }
+.rd-stage.now { background: var(--rd-accent); color: #fff; border-color: var(--rd-accent); }
+.rd-stage.done { background: color-mix(in srgb, var(--rd-accent) 18%, transparent); color: var(--color-fg); }
+.rd-origin { font-size: 11px; color: var(--color-fg-muted); }
+.rd-cb { width: 16px; height: 16px; accent-color: var(--color-ok); cursor: pointer; margin: 0; }
+.rd-cb:disabled { cursor: default; }
+.rd-lib { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: var(--cds-gap-sm); min-height: 40px; }
+.rd-lib li { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rd-lib a { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); font-size: var(--cds-font-size-body); text-decoration: none; overflow-wrap: anywhere; }
+.rd-lib a:hover { text-decoration: underline; }
+.rd-lib .meta { font-size: 11px; color: var(--color-fg-muted); }
+.rd-dl { list-style: none; margin: 6px 0 0; padding: 6px 0 0; border-top: 1px solid var(--color-border-line); display: flex; flex-direction: column; gap: 6px; }
+.rd-dl li { all: unset; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; }
+.rd-lib .rd-dl a.rd-dlbtn { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); color: var(--rd-accent); white-space: nowrap; }
+.rd-dl .nm { font-size: var(--cds-font-size-caption); overflow-wrap: anywhere; }
+.rd-lib li.rd-libempty { grid-column: 1 / -1; border-style: dashed; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rd-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.rd .ebtn { font: inherit; font-size: var(--cds-font-size-caption); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 12px; color: var(--color-fg); cursor: pointer; }
+.rd .ebtn.pri { background: var(--rd-accent); color: #fff; border-color: var(--rd-accent); }
+.rd .ebtn.del { color: var(--color-warn); }
+.rd .rowbtns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.rd .addbar { margin-top: var(--cds-gap-xs); }
+.rd .msg { font-size: var(--cds-font-size-caption); color: var(--color-warn); margin: var(--cds-gap-xs) 0 0; }
+.rd .fld { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--color-fg-muted); }
+.rd .rd-card input, .rd .rd-card select, .rd .rd-card textarea, .rd td input:not(.rd-cb), .rd td select, .rd td textarea { font: inherit; font-size: var(--cds-font-size-caption); width: 100%; min-width: 6rem; padding: 3px 6px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); box-sizing: border-box; }
+.rd textarea { min-height: 3.2rem; resize: vertical; }
+.rd td.act { width: 4rem; text-align: right; white-space: nowrap; }
+.rd [data-dash-source-state=refreshing] { opacity: .5; }
+@media (max-width: 640px) { .rd .hide-narrow { display: none; } }
+@media (max-width: 420px) { .rd-meets { grid-template-columns: 1fr; } }
+.rd-bullets { margin: 0; padding-left: 18px; font-size: var(--cds-font-size-caption); line-height: 1.5; display: flex; flex-direction: column; gap: 4px; }
+.rd-bullets li::marker { color: var(--color-fg-muted); }
+
+/* frozen section menu */
+.rd-nav { position: sticky; top: 0; z-index: 30; background: var(--color-bg); padding: 10px 0; box-shadow: 0 1px 0 var(--color-border-line); }
+section[id] { scroll-margin-top: 64px; }
+
+/* past notes */
+.rd-hist { font-size: var(--cds-font-size-caption); border-top: 1px dashed var(--color-border-line); padding-top: 6px; }
+.rd-hist summary { cursor: pointer; color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); }
+.rd-hist-entry { margin-top: 8px; }
+.rd-hist-date { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--color-fg-muted); margin-bottom: 2px; }
+
+/* frozen logo in the section menu */
+.rd-nav { align-items: center; }
+.rd-navlogo { display: inline-flex; align-items: center; margin-right: 6px; }
+.rd-navlogo:empty { display: none; }
+.rd-navlogo img { display: block; height: 30px; width: auto; max-width: 140px; object-fit: contain; background: #ffffff; border: 1px solid var(--color-border-line); border-radius: 6px; padding: 2px 6px; }
+section[id] { scroll-margin-top: 72px; }
+</style>
+
+<div class="rd">
+  <header class="rd-head" id="top">
+    <div class="rd-logo"><img src="files/0e5f63de4465fbfa65e842b90858549d.webp" alt="Riddick Insurance Group"></div>
+    <div class="rd-headtext">
+      <h1 class="rd-title">Riddick Insurance Group</h1>
+      <p class="rd-subt">Client dashboard · Impact Performance Team</p>
+    </div>
+  </header>
+
+  <nav class="rd-nav" aria-label="Sections"><span class="rd-navlogo" aria-hidden="true"></span>
+    <a href="#sales">Sales</a><a href="#sales-call">Sales Call</a><a href="#leadership">Leadership</a><a href="#team">Service &amp; Ops</a><a href="#recruiting">Recruiting</a><a href="#library">Client Library</a><a href="#tasks">Open tasks</a>
+  </nav>
+
+  <section class="rd-sec" id="sales">
+    <div class="rd-sec-head"><div><h2>Sales</h2><p>Producers with an IPT meeting in the last 2 months</p></div></div>
+    <div class="rd-cards" data-draw="producers-body" data-source="touch"></div>
+    <div data-draw="producers-add"></div>
+  </section>
+
+  <section class="rd-sec" id="sales-call">
+    <div class="rd-sec-head"><div><h2>Sales Call</h2><p>Weekly team sales meeting with Patrick and the producers</p></div></div>
+    <div class="rd-cards" data-draw="group-cards" data-grp="Sales team" data-name="Sales team" data-role="Weekly team sales meeting" data-source="touch card_notes"></div>
+  </section>
+
+  <section class="rd-sec" id="leadership">
+    <div class="rd-sec-head"><div><h2>Leadership</h2><p>Check-ins and recruiting updates with Mike</p></div></div>
+    <div class="rd-cards" data-draw="group-cards" data-grp="Mike" data-name="Mike Riddick" data-role="President · weekly check-in with Patrick" data-source="touch card_notes"></div>
+  </section>
+
+  <section class="rd-sec" id="team">
+    <div class="rd-sec-head"><div><h2>Service &amp; Ops</h2><p>Service and operations team members Savannah meets with</p></div></div>
+    <div class="rd-cards" data-draw="team-cards" data-source="touch card_notes"></div>
+  </section>
+
+  <section class="rd-sec" id="recruiting">
+    <div class="rd-sec-head"><div><h2>Recruiting</h2><p>Roles IPT is recruiting for</p></div></div>
+    <div class="rd-tablewrap">
+      <table class="rd-table">
+        <thead><tr><th>Role</th><th>Stage</th><th>Hire</th><th>Notes</th><th class="hide-narrow">As of</th></tr></thead>
+        <tbody data-draw="roles-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rd-sec" id="library">
+    <div class="rd-sec-head"><div><h2>Client Library</h2><p>Documents and spreadsheets the team may find useful</p></div></div>
+    <ul class="rd-lib" data-draw="resources" data-source="library pdf_downloads"></ul>
+  </section>
+
+  <section class="rd-sec" id="tasks">
+    <div class="rd-sec-head"><div><h2>Open tasks</h2><p>Mike Riddick</p></div></div>
+    <div class="rd-tablewrap">
+      <table class="rd-table">
+        <thead><tr><th><span class="rd-sr">Done</span></th><th>Task</th><th>Due</th><th class="hide-narrow">From</th><th class="act"><span class="rd-sr">Edit</span></th></tr></thead>
+        <tbody data-draw="tasks-body"></tbody>
+      </table>
+    </div>
+    <div data-draw="tasks-add"></div>
+  </section>
+</div>
+
+<script>
+const fmtDay = (s) => s ? d3.utcFormat('%b %-d')(new Date(String(s).slice(0, 10))) : '';
+const fmtLong = (s) => s ? d3.utcFormat('%a %b %-d')(new Date(String(s).slice(0, 10) + 'T00:00:00Z')) : '';
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+
+/* ---------- editable records: producers, roles, tasks, checkmarks, resources ---------- */
+const S = { db: null, canWrite: false, canManage: false, me: null, loaded: { producers: false, tasks: false, roles: false },
+  producers: [], roles: [], tasks: [], checks: {}, resources: [], edit: null, msg: {} };
+const EDITABLE = ['producers-body', 'producers-add', 'team-cards', 'roles-body', 'tasks-body', 'tasks-add', 'resources'];
+const redraw = () => { for (const n of EDITABLE) dash.draw(n); };
+
+(async () => {
+  if (!window.claude || !window.claude.use) { redraw(); return; }
+  const db = await window.claude.use('db');
+  if (!db) { redraw(); return; }
+  const user = await window.claude.use('user');
+  S.db = db;
+  S.canWrite = user ? (await user.can('data.write')) !== false : true;
+  S.canManage = user ? (await user.canEdit()) === true : false;
+  S.me = user ? await user.id() : null;
+  const sub = (coll, key, sort) => db.collection(coll).onSnapshot((snap) => {
+    S[key] = snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort(sort);
+    if (key in S.loaded) S.loaded[key] = true;
+    redraw();
+  }, () => redraw());
+  sub('producer_rows', 'producers', (a, b) => (a.order ?? 99) - (b.order ?? 99) || String(a.name).localeCompare(String(b.name)));
+  sub('role_rows', 'roles', (a, b) => (a.order ?? 99) - (b.order ?? 99) || String(a.role).localeCompare(String(b.role)));
+  sub('task_rows', 'tasks', (a, b) => (a.n ?? 999) - (b.n ?? 999));
+  sub('resources', 'resources', (a, b) => String(a.addedAt || '').localeCompare(String(b.addedAt || '')));
+  db.collection('task_checks').onSnapshot((snap) => {
+    const next = {}; for (const d of snap.docs) next[d.id] = d.data();
+    S.checks = next; redraw();
+  }, () => {});
+})();
+
+const canEdit = () => !!S.db && S.canWrite && S.canManage;
+const canCheck = () => !!S.db && S.canWrite;
+async function save(coll, id, body, msgKey) {
+  try {
+    if (id) await S.db.collection(coll).doc(id).set(body);
+    else await S.db.collection(coll).add(body);
+    S.edit = null; S.msg[msgKey] = '';
+  } catch (e) { S.msg[msgKey] = 'Couldn’t save that change. Try again.'; }
+  redraw();
+}
+async function remove(coll, id, msgKey) {
+  try { await S.db.collection(coll).doc(id).delete(); S.edit = null; S.msg[msgKey] = ''; }
+  catch (e) { S.msg[msgKey] = 'Couldn’t delete that. Try again.'; }
+  redraw();
+}
+const btn = (label, cls, fn) => { const b = el('button', 'ebtn' + (cls ? ' ' + cls : ''), label); b.type = 'button'; b.addEventListener('click', fn); return b; };
+const input = (type, value, ph) => { const i = el(type === 'textarea' ? 'textarea' : 'input'); if (type !== 'textarea') i.type = type; i.value = value || ''; if (ph) i.placeholder = ph; return i; };
+const select = (opts, value) => { const s = el('select'); for (const o of opts) { const op = el('option', null, o); op.value = o; s.appendChild(op); } if (value && !opts.includes(value)) { const op = el('option', null, value); op.value = value; s.appendChild(op); } s.value = value || opts[0]; return s; };
+const tdWrap = (node, cls) => { const td = el('td', cls); td.appendChild(node); return td; };
+const fld = (label, node) => { const l = el('label', 'fld'); l.append(document.createTextNode(label), node); return l; };
+const isDone = (t) => !!(S.checks[t.id] || {}).done;
+
+/* ---------- last and next meeting per person or group ---------- */
+dash.calc('touch', {
+  inputs: ['meetings'],
+  title: 'Last and next meeting per person',
+  description: 'For each person or group, the latest held meeting and the earliest scheduled one from today on.',
+  fn: (meetings) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const by = new Map();
+    for (const m of meetings) {
+      for (const who of String(m['Team Member']).split(' & ').map((s) => s.trim()).filter(Boolean)) {
+        if (!by.has(who)) by.set(who, { key: who, held: 0, last_date: '', last_type: '', next_date: '', next_type: '' });
+        const r = by.get(who);
+        if (m.Status === 'Held') {
+          r.held += 1;
+          if (m.Date > r.last_date) { r.last_date = m.Date; r.last_type = m['Meeting Type']; }
+        } else if (m.Status === 'Scheduled' && m.Date >= today && (!r.next_date || m.Date < r.next_date)) {
+          r.next_date = m.Date; r.next_type = m['Meeting Type'];
+        }
+      }
+    }
+    return [...by.values()];
+  }
+});
+
+dash.calc('next_up', {
+  inputs: ['meetings'],
+  title: 'Next IPT touchpoint',
+  description: 'The earliest scheduled meeting from today on.',
+  fn: (meetings) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const n = meetings.filter((m) => m.Status === 'Scheduled' && m.Date >= today).sort((a, b) => a.Date.localeCompare(b.Date))[0];
+    return [{ title: n ? n['Meeting Type'] + ' · ' + n['Team Member'] : '', date: n ? n.Date : '' }];
+  }
+});
+
+const TL = { 'Leadership Check-in': 'Leadership check-in', 'Team Sales Meeting': 'Team sales meeting', '1:1 Coaching': '1:1 coaching', 'Sales Review': '2026 sales review', 'Planning Call': '2027 planning call', 'Onboarding': 'Onboarding', 'Recruiting Update': 'Recruiting update', 'Candidate Interview': 'Candidate interview' };
+const tmark = (n, field, key) => { n.setAttribute('data-source', 'touch'); n.setAttribute('data-field', field); n.setAttribute('data-where', 'key=' + encodeURIComponent(key)); return n; };
+const touchRow = (key) => { const t = dash.data('touch'); return t.status === 'ok' && Array.isArray(t.data) ? t.data.find((r) => r.key === key) || null : null; };
+function meetBoxes(key) {
+  const t = dash.data('touch'); const row = touchRow(key);
+  const wrap = el('div', 'rd-meets');
+  for (const [k, label] of [['last', 'Last IPT meeting'], ['next', 'Next IPT meeting']]) {
+    const m = el('div', 'rd-meet'); m.append(el('div', 'lbl', label));
+    if (row && row[k + '_date']) {
+      m.append(tmark(el('div', 'when', fmtLong(row[k + '_date'])), k + '_date', key));
+      m.append(tmark(el('div', 'what', TL[row[k + '_type']] || row[k + '_type']), k + '_type', key));
+    } else {
+      m.append(el('div', 'none', t.status === 'ok' ? (k === 'next' ? 'None scheduled' : 'None found') : '—'));
+    }
+    wrap.append(m);
+  }
+  return wrap;
+}
+const RECENT_DAYS = 61;
+const isRecent = (key) => {
+  const row = touchRow(key);
+  if (!row || !row.last_date) return false;
+  const cut = new Date(); cut.setUTCHours(0, 0, 0, 0); cut.setUTCDate(cut.getUTCDate() - RECENT_DAYS);
+  return new Date(row.last_date + 'T00:00:00Z') >= cut;
+};
+
+window.rdPast = function (raw) {
+  let h = raw;
+  for (let i = 0; i < 3 && typeof h === 'string'; i++) { try { h = JSON.parse(h || '[]'); } catch (e) { h = []; } }
+  if (!Array.isArray(h)) return null;
+  h = h.filter((e) => e && (e.working_on || e.notes)).sort((a, b) => String(b.as_of || '').localeCompare(String(a.as_of || '')));
+  if (!h.length) return null;
+  const det = el('details', 'rd-hist');
+  det.append(el('summary', null, 'Past notes (' + h.length + ')'));
+  h.forEach((e) => {
+    const blk = el('div', 'rd-hist-entry');
+    blk.append(el('div', 'rd-hist-date', (e.meeting ? e.meeting + ' · ' : '') + (fmtLong(e.as_of) || '')));
+    const ul = el('ul', 'rd-bullets');
+    String(e.working_on || e.notes || '').split(/\n|(?<=[.!?])\s+(?=[A-Z0-9$(“"])/).map((s) => s.replace(/^[•\-\s]+/, '').trim()).filter(Boolean).forEach((s) => ul.append(el('li', null, s)));
+    blk.append(ul);
+    det.append(blk);
+  });
+  return det;
+};
+
+function notesBlock(key) {
+  const d = dash.data('card_notes');
+  const r = d.status === 'ok' && Array.isArray(d.data) ? d.data.find((x) => x.key === key) : null;
+  if (!r || !r.notes) return [];
+  const nm = (n, f) => { n.setAttribute('data-source', 'card_notes'); n.setAttribute('data-field', f); n.setAttribute('data-where', 'key=' + encodeURIComponent(key)); return n; };
+  const lines = String(r.notes || '').split(/\n|(?<=[.!?])\s+(?=[A-Z0-9$(“"])/).map((s) => s.replace(/^[•\-\s]+/, '').trim()).filter(Boolean);
+  const p = nm(el('ul', 'rd-bullets'), 'notes'); lines.forEach((s) => p.append(el('li', null, s)));
+  const foot = el('div', 'rd-foot');
+  const s = el('span', null, 'From '); s.append(nm(el('span', null, r.meeting), 'meeting'), document.createTextNode(', '), nm(el('span', null, fmtLong(r.as_of)), 'as_of'));
+  foot.append(s);
+  const past = window.rdPast(r.history);
+  return past ? [p, foot, past] : [p, foot];
+}
+for (const a of document.querySelectorAll('.rd-nav a')) a.addEventListener('click', () => dash.setLink(a.getAttribute('href').slice(1)));
+
+/* producer cards (Sales) */
+const STATUSES_P = ['Review scheduled', 'Plan in progress', 'Planning call held', 'Onboarding'];
+const strip = (o) => { const { id, raw, ...rest } = o; return rest; };
+const pendingGoal = (p) => p.planning ? (p.status === 'Planning call held' ? 'Goal to be added from ' + fmtDay(p.planning) + ' planning call' : '2027 goal set at ' + fmtDay(p.planning) + ' planning call') : '2027 planning call to be scheduled';
+function producerForm(p, card) {
+  const f = { name: input('text', p.name, 'Name'), role: input('text', p.role || 'Producer', 'Role'), review: input('date', p.review), planning: input('date', p.planning), status: select(STATUSES_P, p.status), focus: input('textarea', p.focus, 'Current focus'), goal: input('textarea', p.goal, 'e.g. $60K new revenue') };
+  card.append(fld('Name', f.name), fld('Role', f.role), fld('2026 review', f.review), fld('2027 planning call', f.planning), fld('Status', f.status), fld('Current focus', f.focus), fld('2027 goal', f.goal));
+  const box = el('div', 'rowbtns');
+  box.append(btn('Save', 'pri', () => {
+    if (!f.name.value.trim()) { S.msg.p = 'Add a name.'; redraw(); return; }
+    save('producer_rows', p.id, { ...strip(p), name: f.name.value.trim(), role: f.role.value.trim() || 'Producer', review: f.review.value, planning: f.planning.value, status: f.status.value, focus: f.focus.value.trim(), goal: f.goal.value.trim(), order: p.order ?? 50 }, 'p');
+  }), btn('Cancel', '', () => { S.edit = null; redraw(); }));
+  if (p.id) box.append(btn('Delete', 'del', () => remove('producer_rows', p.id, 'p')));
+  card.append(box);
+}
+function producerCard(p) {
+  const c = el('article', 'rd-card'); c.id = 'card-' + (p.id || 'new');
+  if (S.edit && S.edit.kind === 'producer' && S.edit.id === (p.id ?? null)) { producerForm(p, c); return c; }
+  const top = el('div', 'rd-cardtop'); const h = el('div');
+  h.append(el('h3', null, p.name), el('p', 'rd-role', p.role || 'Producer'));
+  top.append(h, el('span', 'rd-badge' + (p.status === 'Planning call held' ? ' on' : ''), p.status || ''));
+  c.append(top, meetBoxes(p.name));
+  const steps = el('div', 'rd-foot');
+  steps.append(el('span', null, '2026 review: ' + (p.review ? fmtDay(p.review) : (p.reviewNote || '—'))), el('span', null, '2027 planning: ' + (p.planning ? fmtDay(p.planning) : '—')));
+  c.append(steps);
+  if (p.focus) { const w = el('p', 'rd-work'); w.append(el('strong', null, 'Focus: '), document.createTextNode(p.focus)); c.append(w); }
+  c.append(p.goal ? el('p', 'rd-goal', '2027 goal: ' + p.goal) : el('p', 'rd-goal pending', pendingGoal(p)));
+  if (canEdit()) { const b = el('div', 'rowbtns'); b.append(btn('Edit', '', () => { S.edit = { kind: 'producer', id: p.id }; redraw(); })); c.append(b); }
+  return c;
+}
+dash.draw('producers-body', (wrap) => {
+  if (!S.loaded.producers) { wrap.replaceChildren(el('div', 'rd-empty', S.db ? 'Loading…' : '—')); return; }
+  const cards = S.producers.filter((p) => isRecent(p.name)).map(producerCard);
+  if (!cards.length && !(S.edit && S.edit.kind === 'producer')) cards.push(el('div', 'rd-empty', 'No producer meetings in the last 2 months.'));
+  if (S.edit && S.edit.kind === 'producer' && S.edit.id === null) cards.push(producerCard({ id: null }));
+  wrap.replaceChildren(...cards);
+});
+dash.draw('producers-add', (box) => {
+  box.replaceChildren();
+  if (S.msg.p) box.appendChild(el('p', 'msg', S.msg.p));
+  if (!canEdit() || (S.edit && S.edit.kind === 'producer')) return;
+  const w = el('div', 'addbar'); w.appendChild(btn('Add producer', '', () => { S.edit = { kind: 'producer', id: null }; redraw(); })); box.appendChild(w);
+});
+
+/* group cards (Sales Call, Leadership) */
+dash.draw('group-cards', (wrap) => {
+  const key = wrap.getAttribute('data-grp');
+  const t = dash.data('touch');
+  if (t.status === 'loading') { wrap.replaceChildren(); return; }
+  const c = el('article', 'rd-card'); c.id = 'card-' + key.toLowerCase().replace(/\W+/g, '-');
+  const top = el('div', 'rd-cardtop'); const h = el('div');
+  h.append(el('h3', null, wrap.getAttribute('data-name')), el('p', 'rd-role', wrap.getAttribute('data-role')));
+  top.append(h);
+  c.append(top, meetBoxes(key), ...notesBlock(key));
+  wrap.replaceChildren(c);
+});
+
+/* everyone else Patrick meets with (Service & Ops) */
+dash.draw('team-cards', (wrap) => {
+  const t = dash.data('touch');
+  if (t.status !== 'ok' || !Array.isArray(t.data)) { wrap.replaceChildren(t.status === 'loading' ? '' : el('div', 'rd-empty', '—')); return; }
+  const skip = new Set(['Sales team', 'Mike', 'Recruiting', ...S.producers.map((p) => p.name)]);
+  const rows = t.data.filter((r) => !skip.has(r.key) && isRecent(r.key)).sort((a, b) => String(b.last_date).localeCompare(String(a.last_date)) || a.key.localeCompare(b.key));
+  if (!rows.length) { wrap.replaceChildren(el('div', 'rd-empty', 'No meetings with service or operations team members in the last 2 months.')); return; }
+  wrap.replaceChildren(...rows.map((r) => {
+    const c = el('article', 'rd-card'); c.id = 'card-' + r.key.toLowerCase().replace(/\W+/g, '-');
+    const top = el('div', 'rd-cardtop'); const h = el('div');
+    h.append(tmark(el('h3', null, r.key), 'key', r.key));
+    top.append(h);
+    c.append(top, meetBoxes(r.key), ...notesBlock(r.key));
+    return c;
+  }));
+});
+
+/* recruiting */
+dash.draw('roles-body', (tb) => {
+  tb.replaceChildren();
+  if (!S.loaded.roles) { const tr = el('tr'); const td = el('td', null, S.db ? 'Loading…' : '—'); td.colSpan = 5; tr.append(td); tb.append(tr); return; }
+  if (!S.roles.length) { const tr = el('tr'); const td = el('td', 'rd-origin', 'No open roles right now.'); td.colSpan = 5; tr.append(td); tb.append(tr); return; }
+  const STAGE = { Filled: ['Role filled', 'done'], 'On hold': ['Paused', ''] };
+  for (const r of S.roles) {
+    const tr = el('tr');
+    const [label, cls] = STAGE[r.status] || [r.status || '—', 'now'];
+    const st = el('td'); st.appendChild(el('span', 'rd-stage' + (cls ? ' ' + cls : ''), label));
+    const hire = el('td', 'nowrap', r.hire || '—');
+    if (r.hire && r.start) hire.append(el('div', 'rd-origin', 'Started ' + fmtDay(r.start)));
+    tr.append(el('td', null, r.role), st, hire, el('td', null, r.latest || ''), el('td', 'nowrap hide-narrow', fmtDay(r.updated)));
+    tb.appendChild(tr);
+  }
+});
+
+/* open tasks for Riddick team members, grouped by owner */
+const STATUSES_T = ['Open', 'Ongoing', 'Confirm'];
+const TASK_OWNERS = ['Mike'];
+async function setDone(id, done) {
+  const prev = S.checks[id];
+  const body = done ? { done: true, doneBy: S.me || null, doneAt: new Date().toISOString() } : { done: false, doneBy: null, doneAt: null };
+  S.checks = { ...S.checks, [id]: body }; redraw();
+  try { await S.db.collection('task_checks').doc(id).set(body); }
+  catch (e) { S.checks = { ...S.checks, [id]: prev }; S.msg.t = 'Couldn’t save that checkmark.'; redraw(); }
+}
+function taskForm(t, tr) {
+  const owners = [...new Set([...TASK_OWNERS, ...S.tasks.map((x) => x.owner)].filter(Boolean))];
+  const f = { owner: select(owners, t.owner), task: input('textarea', t.task, 'What needs to be done'), due: input('date', t.due), status: select(STATUSES_T, t.status), source: input('text', t.source, 'Meeting it came from') };
+  const main = el('td'); main.append(fld('Owner', f.owner), fld('Task', f.task), fld('Status', f.status));
+  tr.append(el('td'), main, tdWrap(f.due), tdWrap(f.source, 'hide-narrow'));
+  const act = el('td', 'act'); const box = el('div', 'rowbtns');
+  box.append(btn('Save', 'pri', () => {
+    if (!f.task.value.trim()) { S.msg.t = 'Describe the task.'; redraw(); return; }
+    const n = t.n ?? (d3.max(S.tasks, (x) => x.n) || 0) + 1;
+    save('task_rows', t.id, { n, owner: f.owner.value, task: f.task.value.trim(), due: f.due.value || null, status: f.status.value, source: f.source.value.trim(), assigned: t.assigned || new Date().toISOString().slice(0, 10) }, 't');
+  }), btn('Cancel', '', () => { S.edit = null; redraw(); }));
+  if (t.id) box.append(btn('Delete', 'del', () => remove('task_rows', t.id, 't')));
+  act.appendChild(box); tr.appendChild(act);
+}
+dash.draw('tasks-body', (tb) => {
+  tb.replaceChildren();
+  if (!S.loaded.tasks) { const tr = el('tr'); const td = el('td', null, S.db ? 'Loading…' : '—'); td.colSpan = 5; tr.appendChild(td); tb.appendChild(tr); return; }
+  const order = { Open: 0, Ongoing: 1, Confirm: 2 };
+  const today = new Date().toISOString().slice(0, 10);
+  /* completed tasks drop off one week after they were checked off (or after their due date, if no done date); open tasks always stay */
+  const cut = new Date(); cut.setUTCHours(0, 0, 0, 0); cut.setUTCDate(cut.getUTCDate() - 7);
+  const isCleared = (t) => { if (!isDone(t)) return false; const ref = (S.checks[t.id] || {}).doneAt || t.due; return !ref || new Date(String(ref).slice(0, 10)) < cut; };
+  const rows = S.tasks.filter((t) => TASK_OWNERS.includes(t.owner) && !isCleared(t)).sort((a, b) => TASK_OWNERS.indexOf(a.owner) - TASK_OWNERS.indexOf(b.owner) || (isDone(a) - isDone(b)) || (order[a.status] ?? 9) - (order[b.status] ?? 9) || String(a.due || '9999').localeCompare(String(b.due || '9999')) || (a.n || 0) - (b.n || 0));
+  if (S.edit && S.edit.kind === 'task' && S.edit.id === null) { const tr = el('tr'); taskForm({ id: null }, tr); tb.appendChild(tr); }
+  if (!rows.length) { const tr = el('tr'); const td = el('td', 'rd-origin', 'No open tasks.'); td.colSpan = 5; tr.appendChild(td); tb.appendChild(tr); return; }
+  let lastOwner = null;
+  for (const t of rows) {
+    if (t.owner !== lastOwner) {
+      lastOwner = t.owner;
+      const g = el('tr', 'rd-grp'); const gd = el('td', null, t.owner || 'Unassigned'); gd.colSpan = 5; g.appendChild(gd); tb.appendChild(g);
+    }
+    const tr = el('tr');
+    if (S.edit && S.edit.kind === 'task' && S.edit.id === t.id) { taskForm(t, tr); tb.appendChild(tr); continue; }
+    const c = S.checks[t.id] || {}; const done = !!c.done;
+    if (done) tr.className = 'isdone';
+    const ck = el('td'); const cb = el('input'); cb.type = 'checkbox'; cb.className = 'rd-cb'; cb.checked = done;
+    cb.disabled = !canCheck(); cb.setAttribute('aria-label', (done ? 'Mark open: ' : 'Mark done: ') + t.task);
+    cb.addEventListener('change', () => setDone(t.id, cb.checked));
+    ck.appendChild(cb); tr.appendChild(ck);
+    const tx = el('td', 'tx'); tx.append(el('div', null, t.task));
+    if (done) tx.append(el('div', 'rd-origin', 'Done' + (c.doneAt ? ' ' + fmtDay(c.doneAt) : '')));
+    else if (t.status === 'Confirm') tx.append(el('div', 'rd-origin', 'To confirm'));
+    else if (t.status === 'Ongoing') tx.append(el('div', 'rd-origin', 'Ongoing'));
+    tr.appendChild(tx);
+    tr.appendChild(el('td', 'nowrap' + (!done && t.due && t.due < today ? ' overdue' : ''), t.due ? fmtDay(t.due) : '—'));
+    tr.appendChild(el('td', 'rd-origin hide-narrow', t.source || ''));
+    const act = el('td', 'act');
+    if (canEdit()) act.appendChild(btn('Edit', '', () => { S.edit = { kind: 'task', id: t.id }; redraw(); }));
+    tr.appendChild(act); tb.appendChild(tr);
+  }
+});
+dash.draw('tasks-add', (box) => {
+  box.replaceChildren();
+  if (S.msg.t) box.appendChild(el('p', 'msg', S.msg.t));
+  if (!canEdit() || (S.edit && S.edit.kind === 'task')) return;
+  const w = el('div', 'addbar'); w.appendChild(btn('Add task', '', () => { S.edit = { kind: 'task', id: null }; redraw(); })); box.appendChild(w);
+});
+
+/* client library: hand-added links plus everything in the client's shared Drive folder */
+dash.loader('library', {
+  description: 'Turns the Google Drive file list into rows of title, type, last modified and link.',
+  fn: ({ answer }) => {
+    let a = answer;
+    if (typeof a === 'string') { try { a = JSON.parse(a); } catch (e) { throw new Error(a); } }
+    const files = (a && Array.isArray(a.files)) ? a.files : [];
+    return files.map((f) => ({ id: String(f.id), title: f.title || '', mimeType: f.mimeType || '', modifiedTime: f.modifiedTime || '', viewUrl: f.viewUrl || '' }));
+  }
+});
+dash.loader('pdf_downloads', {
+  description: 'Turns IPT\u2019s list of PDF copies into rows of title, folder and download link.',
+  fn: ({ answer }) => {
+    let a = answer;
+    if (typeof a === 'string') { try { a = JSON.parse(a); } catch (e) { throw new Error(a); } }
+    const files = (a && Array.isArray(a.files)) ? a.files : [];
+    return files.map((f) => ({ driveId: String(f.driveId || ''), title: f.title || '', fileName: f.fileName || ((f.title || 'file') + '.pdf'), folder: f.folder || '', folderId: String(f.folderId || ''), url: f.url || '', bytes: Number(f.bytes) || 0, modifiedTime: f.modifiedTime || '' }));
+  }
+});
+const blobLink = (u) => (typeof u === 'string' && /^files\/[0-9a-f]{32}\.[a-z0-9]+$/.test(u)) ? u : null;
+const fmtSize = (b) => b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : b ? Math.max(1, Math.round(b / 1024)) + ' KB' : '';
+function dlRow(p) {
+  const li = el('li');
+  const nm = el('span', 'nm', p.title || p.fileName); nm.setAttribute('data-source', 'pdf_downloads'); nm.setAttribute('data-field', 'title'); nm.setAttribute('data-where', 'driveId=' + encodeURIComponent(p.driveId));
+  const href = blobLink(p.url);
+  const a = el(href ? 'a' : 'span', 'rd-dlbtn', 'Download PDF' + (p.bytes ? ' (' + fmtSize(p.bytes) + ')' : ''));
+  if (href) { a.href = href; a.setAttribute('download', p.fileName); }
+  li.append(nm, a); return li;
+}
+const safeLink = (u) => { try { const x = new URL(String(u)); return x.protocol === 'https:' ? x.href : null; } catch (_) { return null; } };
+const LIB_KIND = (m) => /folder/.test(m) ? 'Folder' : /document/.test(m) ? 'Doc' : /spreadsheet|excel|sheet/.test(m) ? 'Sheet' : /presentation|powerpoint/.test(m) ? 'Slides' : /pdf/.test(m) ? 'PDF' : /image/.test(m) ? 'Image' : 'File';
+dash.draw('resources', (ul) => {
+  ul.replaceChildren();
+  const out = [];
+  for (const r of S.resources) {
+    const li = el('li');
+    const href = safeLink(r.url);
+    const a = el(href ? 'a' : 'span', null, r.title || 'Untitled');
+    if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener'; }
+    li.append(a, el('span', 'meta', [r.forWhom ? 'For ' + r.forWhom : '', r.note || ''].filter(Boolean).join(' · ')));
+    out.push(li);
+  }
+  const d = dash.data('library');
+  if (d.status === 'ok' && Array.isArray(d.data)) {
+    for (const f of d.data) {
+      const li = el('li');
+      const href = safeLink(f.viewUrl);
+      const a = el(href ? 'a' : 'span', null, f.title || 'Untitled');
+      if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener'; }
+      a.setAttribute('data-source', 'library'); a.setAttribute('data-field', 'title'); a.setAttribute('data-where', 'id=' + encodeURIComponent(f.id));
+      li.append(a, el('span', 'meta', LIB_KIND(f.mimeType) + (f.modifiedTime ? ' · updated ' + fmtDay(f.modifiedTime) : '')));
+      /* PDFs inside a folder (or the file itself, if it is a PDF) can be downloaded without Google Drive */
+      const pd = dash.data('pdf_downloads');
+      const mine = pd.status === 'ok' && Array.isArray(pd.data) ? pd.data.filter((p) => p.folderId === f.id || p.driveId === f.id) : [];
+      if (mine.length) { const dl = el('ul', 'rd-dl'); mine.forEach((p) => dl.append(dlRow(p))); li.append(dl); }
+      out.push(li);
+    }
+  }
+  if (!out.length) out.push(el('li', 'rd-libempty', d.status === 'loading' ? 'Loading…' : d.status === 'connect' ? 'Waiting for Google Drive access…' : 'Resources will be added here soon.'));
+  ul.replaceChildren(...out);
+});
+
+/* header: next touchpoint */
+dash.draw('next_title', (n) => { const d = dash.data('next_up'); n.textContent = d.status === 'ok' && d.data && d.data[0] && d.data[0].title ? d.data[0].title : '—'; });
+dash.draw('next_date', (n) => { const d = dash.data('next_up'); n.textContent = d.status === 'ok' && d.data && d.data[0] && d.data[0].date ? fmtLong(d.data[0].date) : '—'; });
+</script>
+
+<script>
+(function () {
+  const slot = document.querySelector('.rd-navlogo');
+  const box = document.querySelector('.rd-head .rd-logo');
+  if (!slot || !box) return;
+  const sync = () => {
+    const img = box.querySelector('img');
+    if (!img || !img.getAttribute('src')) return;
+    const cur = slot.querySelector('img');
+    if (cur && cur.getAttribute('src') === img.getAttribute('src')) return;
+    const c = document.createElement('img');
+    c.src = img.getAttribute('src');
+    c.alt = '';
+    slot.replaceChildren(c);
+  };
+  sync();
+  new MutationObserver(sync).observe(box, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+})();
+</script>
+
+<script>dash._runAll();</script>
+</div></body></html>
